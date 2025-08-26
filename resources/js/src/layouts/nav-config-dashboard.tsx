@@ -69,6 +69,11 @@ export const navData: NavSectionProps['data'] = [
     subheader: 'Management',
     items: [
       {
+        title: 'Users',
+        path: paths.users,
+        icon: ICONS.user,
+      },
+      {
         title: 'Group',
         path: paths.dashboard.group.root,
         icon: ICONS.user,
