@@ -8,7 +8,7 @@ return [
     ],
     'language' => [
       'ru' => 'Russian',
-      'en'=> 'English'
+      'us'=> 'English'
     ],
     'profile' => [
       'my' => 'My profile',
