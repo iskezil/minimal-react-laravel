@@ -81,7 +81,7 @@ export function useNavData(): NavSectionProps['data'] {
             title: __('navigation.management.users'),
             path: paths.users,
             icon: ICONS.user,
-            allowedRoles: ['manager'],
+            allowedRoles: ['admin'],
           },
           {
             title: __('navigation.management.group'),
