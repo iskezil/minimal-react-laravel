@@ -24,7 +24,8 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateBorder } from 'src/components/animate';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { usePage } from '@inertiajs/react';
+import { CONFIG } from 'src/global-config';
 
 import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
@@ -41,10 +42,27 @@ export type AccountDrawerProps = IconButtonProps & {
   }[];
 };
 
+type PageProps = {
+  auth: {
+    user: {
+      name: string;
+      email: string;
+      avatar: string;
+      role?: string;
+    };
+  };
+};
+
 export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   const pathname = usePathname();
 
-  const { user } = useMockedUser();
+  const {
+    props: {
+      auth: { user },
+    },
+  } = usePage<PageProps>();
+
+  const avatarUrl = `${CONFIG.assetsDir}/${user.avatar}`;
 
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
@@ -55,8 +73,8 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
         primaryBorder: { size: 120, sx: { color: 'primary.main' } },
       }}
     >
-      <Avatar src={user?.photoURL} alt={user?.displayName} sx={{ width: 1, height: 1 }}>
-        {user?.displayName?.charAt(0).toUpperCase()}
+      <Avatar src={avatarUrl} alt={user.name} sx={{ width: 1, height: 1 }}>
+        {user.name.charAt(0).toUpperCase()}
       </Avatar>
     </AnimateBorder>
   );
@@ -119,8 +137,8 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
     <>
       <AccountButton
         onClick={onOpen}
-        photoURL={user?.photoURL}
-        displayName={user?.displayName}
+        photoURL={avatarUrl}
+        displayName={user.name}
         sx={sx}
         {...other}
       />
@@ -158,11 +176,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             {renderAvatar()}
 
             <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              {user?.displayName}
+            {user.name}
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              {user?.email}
+            {user.email}
             </Typography>
           </Box>
 
