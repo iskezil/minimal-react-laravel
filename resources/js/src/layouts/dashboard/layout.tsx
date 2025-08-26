@@ -16,7 +16,7 @@ import { _contacts, _notifications } from 'src/_mock';
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { usePage } from '@inertiajs/react';
 
 import { NavMobile } from './nav-mobile';
 import { VerticalDivider } from './content';
@@ -50,6 +50,17 @@ export type DashboardLayoutProps = LayoutBaseProps & {
   };
 };
 
+type PageProps = {
+  auth: {
+    user: {
+      name: string;
+      email: string;
+      avatar: string;
+      role?: string;
+    };
+  };
+};
+
 export function DashboardLayout({
   sx,
   cssVars,
@@ -59,7 +70,11 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const theme = useTheme();
 
-  const { user } = useMockedUser();
+  const {
+    props: {
+      auth: { user },
+    },
+  } = usePage<PageProps>();
 
   const settings = useSettingsContext();
 
@@ -76,7 +91,7 @@ export function DashboardLayout({
   const isNavVertical = isNavMini || settings.state.navLayout === 'vertical';
 
   const canDisplayItemByRole = (allowedRoles: NavItemProps['allowedRoles']): boolean =>
-    !allowedRoles?.includes(user?.role);
+    !allowedRoles?.includes(user.role);
 
   const renderHeader = () => {
     const headerSlotProps: HeaderSectionProps['slotProps'] = {

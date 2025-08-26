@@ -59,6 +59,8 @@ return [
 
     'asset_url' => env('ASSET_URL'),
 
+    'default_avatar' => env('DEFAULT_AVATAR', 'assets/images/mock/avatar/avatar-25.webp'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
