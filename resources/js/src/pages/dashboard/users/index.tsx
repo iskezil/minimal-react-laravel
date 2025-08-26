@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { JSX, useMemo, useState } from 'react';
 
 import { CONFIG } from 'src/global-config';
 import { DashboardContent, DashboardLayout } from 'src/layouts/dashboard';
@@ -38,6 +38,15 @@ interface Props {
 }
 
 const metadata = { title: `Users | Dashboard - ${CONFIG.appName}` };
+
+function CustomBreadcrumbs(props: {
+  heading: string;
+  sx: { mb: { md: number; xs: number } };
+  action: JSX.Element;
+  links: ({ name: string; href: string } | { name: string; href: any } | { name: string })[];
+}) {
+  return null;
+}
 
 export default function Index({ users, roles }: Props) {
   const { __ } = useLang();
@@ -89,7 +98,7 @@ export default function Index({ users, roles }: Props) {
       <title>{metadata.title}</title>
       <DashboardLayout>
         <DashboardContent maxWidth="xl">
-          <Breadcrumbs sx={{ mb: 2 }}>
+          <Breadcrumbs separator="›" sx={{ mb: 2 }}>
             <Link
               component={RouterLink}
               underline="hover"
