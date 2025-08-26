@@ -13,11 +13,13 @@ Route::middleware('auth')->group(function () {
   });
 
   Route::get('/dashboard', function () {
-    syncLangFiles(['auth', 'navbar', 'pages/home']);
+    syncLangFiles(['auth', 'navbar', 'navigation', 'pages/home']);
     return Inertia::render('dashboard/home');
   });
 
-  Route::get('/users', [UserController::class, 'index'])->name('users.index');
+  Route::get('/users', [UserController::class, 'index'])
+    ->name('users.index')
+    ->middleware('role:manager');
 });
 
 

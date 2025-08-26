@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index(): Response
     {
-        syncLangFiles(['auth', 'navbar', 'pages/users']);
+        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/users']);
         $users = User::with('roles:id,name')
             ->select('id', 'name', 'email', 'status', 'created_at')
             ->get()
