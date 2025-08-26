@@ -66,8 +66,8 @@ export default function Index({ users, roles }: Props) {
       headerName: __('pages/users.table.actions'),
       sortable: false,
       flex: 1,
-      align: 'right',
-      headerAlign: 'right',
+      align: 'left',
+      headerAlign: 'left',
       renderCell: () => (
         <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ width: 1 }}>
           <IconButton size="small">
@@ -90,7 +90,12 @@ export default function Index({ users, roles }: Props) {
       <DashboardLayout>
         <DashboardContent maxWidth="xl">
           <Breadcrumbs sx={{ mb: 2 }}>
-            <Link component={RouterLink} underline="hover" color="inherit" href={paths.dashboard.root}>
+            <Link
+              component={RouterLink}
+              underline="hover"
+              color="inherit"
+              href={paths.dashboard.root}
+            >
               {__('pages/users.breadcrumbs.dashboard')}
             </Link>
             <Typography color="text.primary">{__('pages/users.breadcrumbs.users')}</Typography>
@@ -110,9 +115,6 @@ export default function Index({ users, roles }: Props) {
                 label={__('pages/users.filters.role')}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <MenuItem value="">
-                  {__('pages/users.filters.role')}
-                </MenuItem>
                 {roles.map((r) => (
                   <MenuItem key={r.id} value={r.name}>
                     {r.name}
