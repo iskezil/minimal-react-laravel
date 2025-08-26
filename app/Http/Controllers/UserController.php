@@ -20,7 +20,7 @@ class UserController extends Controller
                 'role' => $user->role ?? '',
             ]);
 
-        return Inertia::render('users/index', [
+        return Inertia::render('dashboard/users', [
             'users' => $users,
         ]);
     }
