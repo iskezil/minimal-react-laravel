@@ -5,6 +5,7 @@ return [
     'breadcrumbs' => [
         'dashboard' => 'Dashboard',
         'users' => 'Users',
+        'list' => 'List',
     ],
     'table' => [
         'name' => 'Name',
@@ -18,4 +19,5 @@ return [
     'filters' => [
         'role' => 'Role',
     ],
+    'add_user' => 'Add user',
 ];

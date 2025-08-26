@@ -5,6 +5,7 @@ return [
     'breadcrumbs' => [
         'dashboard' => 'Главная',
         'users' => 'Пользователи',
+        'list' => 'Список',
     ],
     'table' => [
         'name' => 'Имя',
@@ -18,4 +19,5 @@ return [
     'filters' => [
         'role' => 'Роль',
     ],
+    'add_user' => 'Добавить пользователя',
 ];

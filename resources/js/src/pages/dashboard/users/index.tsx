@@ -1,15 +1,14 @@
-import { JSX, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { CONFIG } from 'src/global-config';
 import { DashboardContent, DashboardLayout } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
@@ -17,7 +16,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridToolbarContainer, type GridColDef } from '@mui/x-data-grid';
 
 // ----------------------------------------------------------------------
 
@@ -38,15 +37,6 @@ interface Props {
 }
 
 const metadata = { title: `Users | Dashboard - ${CONFIG.appName}` };
-
-function CustomBreadcrumbs(props: {
-  heading: string;
-  sx: { mb: { md: number; xs: number } };
-  action: JSX.Element;
-  links: ({ name: string; href: string } | { name: string; href: any } | { name: string })[];
-}) {
-  return null;
-}
 
 export default function Index({ users, roles }: Props) {
   const { __ } = useLang();
@@ -78,7 +68,13 @@ export default function Index({ users, roles }: Props) {
       align: 'left',
       headerAlign: 'left',
       renderCell: () => (
-        <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ width: 1 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          justifyContent="flex-end"
+          alignItems="center"
+          sx={{ width: 1, height: 1 }}
+        >
           <IconButton size="small">
             <Iconify icon="solar:eye-bold" />
           </IconButton>
@@ -93,45 +89,57 @@ export default function Index({ users, roles }: Props) {
     },
   ];
 
+  const Toolbar = () => (
+    <GridToolbarContainer>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ p: 1, width: 1 }}>
+        <TextField
+          size="small"
+          label={__('pages/users.search')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>{__('pages/users.filters.role')}</InputLabel>
+          <Select
+            value={role}
+            label={__('pages/users.filters.role')}
+            onChange={(e) => setRole(e.target.value)}
+          >
+            {roles.map((r) => (
+              <MenuItem key={r.id} value={r.name}>
+                {r.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Stack>
+    </GridToolbarContainer>
+  );
+
   return (
     <>
       <title>{metadata.title}</title>
       <DashboardLayout>
         <DashboardContent maxWidth="xl">
-          <Breadcrumbs separator="›" sx={{ mb: 2 }}>
-            <Link
-              component={RouterLink}
-              underline="hover"
-              color="inherit"
-              href={paths.dashboard.root}
-            >
-              {__('pages/users.breadcrumbs.dashboard')}
-            </Link>
-            <Typography color="text.primary">{__('pages/users.breadcrumbs.users')}</Typography>
-          </Breadcrumbs>
-
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
-            <TextField
-              size="small"
-              label={__('pages/users.search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>{__('pages/users.filters.role')}</InputLabel>
-              <Select
-                value={role}
-                label={__('pages/users.filters.role')}
-                onChange={(e) => setRole(e.target.value)}
+          <CustomBreadcrumbs
+            heading={__('pages/users.breadcrumbs.list')}
+            links={[
+              { name: __('pages/users.breadcrumbs.dashboard'), href: paths.dashboard.root },
+              { name: __('pages/users.title'), href: paths.dashboard.user.root },
+              { name: __('pages/users.breadcrumbs.list') },
+            ]}
+            action={
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.user.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
               >
-                {roles.map((r) => (
-                  <MenuItem key={r.id} value={r.name}>
-                    {r.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
+                {__('pages/users.add_user')}
+              </Button>
+            }
+            sx={{ mb: { xs: 3, md: 5 } }}
+          />
 
           <DataGrid
             autoHeight
@@ -140,6 +148,7 @@ export default function Index({ users, roles }: Props) {
             initialState={{ sorting: { sortModel: [{ field: 'name', sort: 'asc' }] } }}
             pageSizeOptions={[5, 10, 25]}
             disableColumnMenu
+            slots={{ toolbar: Toolbar }}
           />
         </DashboardContent>
       </DashboardLayout>
