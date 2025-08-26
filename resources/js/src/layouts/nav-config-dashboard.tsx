@@ -72,6 +72,7 @@ export const navData: NavSectionProps['data'] = [
         title: 'Users',
         path: paths.users,
         icon: ICONS.user,
+        allowedRoles: ['admin'],
       },
       {
         title: 'Group',

@@ -150,7 +150,7 @@ export function DashboardLayout({
           {/** @slot Language popover */}
           <LanguagePopover
             data={[
-              { value: 'us', label: 'English', countryCode: 'US' },
+              { value: 'en', label: 'English', countryCode: 'US' },
               { value: 'ru', label: 'Russian', countryCode: 'RU' },
             ]}
           />
