@@ -21,7 +21,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'status' => $user->status,
                 'created_at' => $user->created_at->toDateString(),
-                'role' => $user->roles->first()->name ?? '',
+                'roles' => $user->roles->pluck('id')->toArray(),
             ]);
 
         $roles = Role::select('id', 'name')->get();

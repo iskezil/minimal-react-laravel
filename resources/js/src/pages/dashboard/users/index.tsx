@@ -38,12 +38,12 @@ type User = {
   email: string;
   status: string;
   created_at: string;
-  role: string | null;
+  roles: number[];
 };
 
 type Role = { id: number; name: string };
 
-type Filters = { keyword: string; role: string; status: string };
+type Filters = { keyword: string; role: number | null; status: string };
 
 interface Props {
   users: User[];
@@ -57,18 +57,27 @@ const metadata = { title: `Users | Dashboard - ${CONFIG.appName}` };
 export default function Index({ users, roles }: Props) {
   const { __ } = useLang();
 
-  const [filters, setFilters] = useState<Filters>({ keyword: '', role: '', status: 'all' });
+  const [userList, setUserList] = useState<User[]>(users);
+  const [filters, setFilters] = useState<Filters>({ keyword: '', role: null, status: 'all' });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [editing, setEditing] = useState<{ id: number | null; field: string | null }>({
+    id: null,
+    field: null,
+  });
 
-  const handleFilters = (name: keyof typeof filters, value: string) => {
+  const handleFilters = (name: keyof Filters, value: string | number | null) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
     setPage(0);
   };
 
   const handleResetFilters = () => {
-    setFilters({ keyword: '', role: '', status: 'all' });
+    setFilters({ keyword: '', role: null, status: 'all' });
     setPage(0);
+  };
+
+  const handleEditChange = (id: number, field: keyof User, value: any) => {
+    setUserList((prev) => prev.map((u) => (u.id === id ? { ...u, [field]: value } : u)));
   };
 
   const STATUS_OPTIONS = [
@@ -80,14 +89,14 @@ export default function Index({ users, roles }: Props) {
 
   const filteredUsers = useMemo(
     () =>
-      users.filter(
+      userList.filter(
         (user) =>
           (user.name.toLowerCase().includes(filters.keyword.toLowerCase()) ||
             user.email.toLowerCase().includes(filters.keyword.toLowerCase())) &&
-          (!filters.role || user.role === filters.role) &&
+          (!filters.role || user.roles.includes(filters.role)) &&
           (filters.status === 'all' || user.status === filters.status)
       ),
-    [users, filters]
+    [userList, filters]
   );
 
   const paginatedUsers = useMemo(
@@ -114,8 +123,13 @@ export default function Index({ users, roles }: Props) {
 
   const getStatusCount = (value: string) =>
     value === 'all'
-      ? users.length
-      : users.filter((user) => user.status === value).length;
+      ? userList.length
+      : userList.filter((user) => user.status === value).length;
+
+  const translateRole = (id: number) => {
+    const role = roles.find((r) => r.id === id);
+    return role ? __(`pages/users.roles.${role.name.toLowerCase()}`) : '';
+  };
 
   return (
     <>
@@ -179,6 +193,7 @@ export default function Index({ users, roles }: Props) {
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={filteredUsers.length}
+              roles={roles}
             />
 
             <TableContainer>
@@ -196,27 +211,103 @@ export default function Index({ users, roles }: Props) {
                 <TableBody>
                   {paginatedUsers.map((user) => (
                     <TableRow key={user.id} hover>
-                      <TableCell>{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Label
-                          color={
-                            (user.status === 'active' && 'success') ||
-                            (user.status === 'pending' && 'warning') ||
-                            (user.status === 'banned' && 'error') ||
-                            'default'
-                          }
-                        >
-                          {__(`pages/users.tabs.${user.status}`)}
-                        </Label>
+                      <TableCell
+                        onDoubleClick={() => setEditing({ id: user.id, field: 'name' })}
+                      >
+                        {editing.id === user.id && editing.field === 'name' ? (
+                          <TextField
+                            value={user.name}
+                            size="small"
+                            autoFocus
+                            onChange={(e) =>
+                              handleEditChange(user.id, 'name', e.target.value)
+                            }
+                            onBlur={() => setEditing({ id: null, field: null })}
+                          />
+                        ) : (
+                          user.name
+                        )}
+                      </TableCell>
+                      <TableCell
+                        onDoubleClick={() => setEditing({ id: user.id, field: 'email' })}
+                      >
+                        {editing.id === user.id && editing.field === 'email' ? (
+                          <TextField
+                            value={user.email}
+                            size="small"
+                            autoFocus
+                            onChange={(e) =>
+                              handleEditChange(user.id, 'email', e.target.value)
+                            }
+                            onBlur={() => setEditing({ id: null, field: null })}
+                          />
+                        ) : (
+                          user.email
+                        )}
+                      </TableCell>
+                      <TableCell
+                        onDoubleClick={() => setEditing({ id: user.id, field: 'status' })}
+                      >
+                        {editing.id === user.id && editing.field === 'status' ? (
+                          <Select
+                            size="small"
+                            value={user.status}
+                            onChange={(e) => {
+                              handleEditChange(user.id, 'status', e.target.value);
+                              setEditing({ id: null, field: null });
+                            }}
+                          >
+                            {STATUS_OPTIONS.filter((o) => o.value !== 'all').map((o) => (
+                              <MenuItem key={o.value} value={o.value}>
+                                {o.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        ) : (
+                          <Label
+                            color={
+                              (user.status === 'active' && 'success') ||
+                              (user.status === 'pending' && 'warning') ||
+                              (user.status === 'banned' && 'error') ||
+                              'default'
+                            }
+                          >
+                            {__(`pages/users.tabs.${user.status}`)}
+                          </Label>
+                        )}
                       </TableCell>
                       <TableCell>{user.created_at}</TableCell>
-                      <TableCell>
-                        {user.role
-                          ? __(
-                              `pages/users.roles.${(user.role || '').toLowerCase()}`
-                            )
-                          : '-'}
+                      <TableCell
+                        onDoubleClick={() => setEditing({ id: user.id, field: 'roles' })}
+                      >
+                        {editing.id === user.id && editing.field === 'roles' ? (
+                          <Select
+                            multiple
+                            size="small"
+                            value={user.roles}
+                            onChange={(e) => {
+                              const value = e.target.value as number[];
+                              handleEditChange(user.id, 'roles', value);
+                            }}
+                            renderValue={(selected) =>
+                              (selected as number[]).map(translateRole).join(', ')
+                            }
+                            onClose={() => setEditing({ id: null, field: null })}
+                          >
+                            {roles.map((r) => {
+                              const key = r.name.toLowerCase();
+                              return (
+                                <MenuItem key={r.id} value={r.id}>
+                                  {__(`pages/users.roles.${key}`)}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        ) : user.roles.length ? (
+                          user.roles.map(translateRole).join(', ')
+                        ) : (
+                          '-'
+                        )}
                       </TableCell>
                       <TableCell align="center">
                         <Stack direction="row" spacing={1} justifyContent="center">
@@ -265,7 +356,7 @@ export default function Index({ users, roles }: Props) {
 
 type UserTableToolbarProps = {
   filters: Filters;
-  onFilters: (name: keyof Filters, value: string) => void;
+  onFilters: (name: keyof Filters, value: string | number | null) => void;
   roles: Role[];
 };
 
@@ -285,9 +376,11 @@ function UserTableToolbar({ filters, onFilters, roles }: UserTableToolbarProps) 
       <FormControl size="small" sx={{ minWidth: 160 }}>
         <InputLabel>{__('pages/users.filters.role')}</InputLabel>
         <Select
-          value={filters.role}
+          value={filters.role ?? ''}
           label={__('pages/users.filters.role')}
-          onChange={(e) => onFilters('role', e.target.value)}
+          onChange={(e) =>
+            onFilters('role', e.target.value === '' ? null : Number(e.target.value))
+          }
         >
           <MenuItem value="">
             <em>{__('pages/users.filters.role')}</em>
@@ -295,7 +388,7 @@ function UserTableToolbar({ filters, onFilters, roles }: UserTableToolbarProps) 
           {roles.map((r) => {
             const key = r.name.toLowerCase();
             return (
-              <MenuItem key={r.id} value={r.name}>
+              <MenuItem key={r.id} value={r.id}>
                 {__(`pages/users.roles.${key}`)}
               </MenuItem>
             );
@@ -308,9 +401,10 @@ function UserTableToolbar({ filters, onFilters, roles }: UserTableToolbarProps) 
 
 type UserTableFiltersResultProps = {
   filters: Filters;
-  onFilters: (name: keyof Filters, value: string) => void;
+  onFilters: (name: keyof Filters, value: string | number | null) => void;
   onResetFilters: () => void;
   results: number;
+  roles: Role[];
 };
 
 function UserTableFiltersResult({
@@ -318,11 +412,13 @@ function UserTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  roles,
 }: UserTableFiltersResultProps) {
   const { __ } = useLang();
   const { keyword, role, status } = filters;
+  const roleName = role !== null ? roles.find((r) => r.id === role)?.name || '' : '';
 
-  const canReset = keyword || role || status !== 'all';
+  const canReset = keyword || role !== null || status !== 'all';
   if (!canReset) return null;
 
   return (
@@ -338,10 +434,10 @@ function UserTableFiltersResult({
         />
       )}
 
-      {role && (
+      {role !== null && (
         <Chip
-          label={`${__('pages/users.filters.role')}: ${__(`pages/users.roles.${role.toLowerCase()}`)}`}
-          onDelete={() => onFilters('role', '')}
+          label={`${__('pages/users.filters.role')}: ${__(`pages/users.roles.${roleName.toLowerCase()}`)}`}
+          onDelete={() => onFilters('role', null)}
         />
       )}
 
