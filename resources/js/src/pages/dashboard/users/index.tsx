@@ -13,7 +13,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import { DataGrid, type GridColDef, GridToolbarContainer } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
@@ -36,6 +36,48 @@ interface Props {
 }
 
 const metadata = { title: `Users | Dashboard - ${CONFIG.appName}` };
+
+function UserToolbar({
+  search,
+  setSearch,
+  role,
+  setRole,
+  roles,
+}: {
+  search: string;
+  setSearch: (value: string) => void;
+  role: string;
+  setRole: (value: string) => void;
+  roles: Role[];
+}) {
+  const { __ } = useLang();
+
+  return (
+    <GridToolbarContainer>
+      <TextField
+        size="small"
+        label={__('pages/users.search')}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        sx={{ mr: 2 }}
+      />
+      <FormControl size="small" sx={{ minWidth: 120 }}>
+        <InputLabel>{__('pages/users.filters.role')}</InputLabel>
+        <Select
+          value={role}
+          label={__('pages/users.filters.role')}
+          onChange={(e) => setRole(e.target.value)}
+        >
+          {roles.map((r) => (
+            <MenuItem key={r.id} value={r.name}>
+              {r.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </GridToolbarContainer>
+  );
+}
 
 export default function Index({ users, roles }: Props) {
   const { __ } = useLang();
@@ -64,10 +106,16 @@ export default function Index({ users, roles }: Props) {
       headerName: __('pages/users.table.actions'),
       sortable: false,
       flex: 1,
-      align: 'left',
-      headerAlign: 'left',
+      align: 'center',
+      headerAlign: 'center',
       renderCell: () => (
-        <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ width: 1 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          justifyContent="center"
+          alignItems="center"
+          sx={{ width: 1, height: 1 }}
+        >
           <IconButton size="small">
             <Iconify icon="solar:eye-bold" />
           </IconButton>
@@ -100,34 +148,11 @@ export default function Index({ users, roles }: Props) {
                 variant="contained"
                 startIcon={<Iconify icon="mingcute:add-line" />}
               >
-                Add user
+                {__('pages/users.add_user')}
               </Button>
             }
             sx={{ mb: { xs: 3, md: 5 } }}
           />
-
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
-            <TextField
-              size="small"
-              label={__('pages/users.search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>{__('pages/users.filters.role')}</InputLabel>
-              <Select
-                value={role}
-                label={__('pages/users.filters.role')}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                {roles.map((r) => (
-                  <MenuItem key={r.id} value={r.name}>
-                    {r.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
 
           <DataGrid
             autoHeight
@@ -136,6 +161,8 @@ export default function Index({ users, roles }: Props) {
             initialState={{ sorting: { sortModel: [{ field: 'name', sort: 'asc' }] } }}
             pageSizeOptions={[5, 10, 25]}
             disableColumnMenu
+            slots={{ toolbar: UserToolbar }}
+            slotProps={{ toolbar: { search, setSearch, role, setRole, roles } }}
           />
         </DashboardContent>
       </DashboardLayout>

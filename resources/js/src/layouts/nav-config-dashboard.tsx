@@ -1,11 +1,14 @@
 import type { NavSectionProps } from 'src/components/nav-section';
 
+import { useMemo } from 'react';
+
 import { paths } from 'src/routes/paths';
 
 import { CONFIG } from 'src/global-config';
 
 import { Label } from 'src/components/label';
 import { SvgColor } from 'src/components/svg-color';
+import { useLang } from 'src/hooks/useLang';
 
 // ----------------------------------------------------------------------
 
@@ -45,55 +48,70 @@ const ICONS = {
 
 // ----------------------------------------------------------------------
 
-export const navData: NavSectionProps['data'] = [
-  /**
-   * Overview
-   */
-  {
-    subheader: 'Overview',
-    items: [
+export function useNavData(): NavSectionProps['data'] {
+  const { __ } = useLang();
+
+  return useMemo(
+    () => [
       {
-        title: 'One',
-        path: paths.dashboard.root,
-        icon: ICONS.dashboard,
-        info: <Label>v{CONFIG.appVersion}</Label>,
-      },
-      { title: 'Тест', path: paths.dashboard.two, icon: ICONS.ecommerce },
-      { title: 'Three', path: paths.dashboard.three, icon: ICONS.analytics },
-    ],
-  },
-  /**
-   * Management
-   */
-  {
-    subheader: 'Management',
-    items: [
-      {
-        title: 'Users',
-        path: paths.users,
-        icon: ICONS.user,
-        allowedRoles: ['admin'],
+        subheader: __('navigation.overview.subheader'),
+        items: [
+          {
+            title: __('navigation.overview.one'),
+            path: paths.dashboard.root,
+            icon: ICONS.dashboard,
+            info: <Label>v{CONFIG.appVersion}</Label>,
+          },
+          {
+            title: __('navigation.overview.test'),
+            path: paths.dashboard.two,
+            icon: ICONS.ecommerce,
+          },
+          {
+            title: __('navigation.overview.three'),
+            path: paths.dashboard.three,
+            icon: ICONS.analytics,
+          },
+        ],
       },
       {
-        title: 'Group',
-        path: paths.dashboard.group.root,
-        icon: ICONS.user,
-        children: [
-          { title: 'Four', path: paths.dashboard.group.root },
-          { title: 'Five', path: paths.dashboard.group.five },
-          { title: 'Six', path: paths.dashboard.group.six },
+        subheader: __('navigation.management.subheader'),
+        items: [
+          {
+            title: __('navigation.management.users'),
+            path: paths.users,
+            icon: ICONS.user,
+            allowedRoles: ['manager'],
+          },
+          {
+            title: __('navigation.management.group'),
+            path: paths.dashboard.group.root,
+            icon: ICONS.user,
+            children: [
+              {
+                title: __('navigation.management.four'),
+                path: paths.dashboard.group.root,
+              },
+              {
+                title: __('navigation.management.five'),
+                path: paths.dashboard.group.five,
+              },
+              {
+                title: __('navigation.management.six'),
+                path: paths.dashboard.group.six,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        subheader: __('navigation.auth.subheader'),
+        items: [
+          { title: __('navigation.auth.sign_in'), path: '/sign-in' },
+          { title: __('navigation.auth.sign_up'), path: '/sign-up' },
         ],
       },
     ],
-  },
-  /**
-   * Auth
-   */
-  {
-    subheader: 'Auth',
-    items: [
-      { title: 'Sign in', path: '/sign-in' },
-      { title: 'Sign up', path: '/sign-up' },
-    ],
-  },
-];
+    [__]
+  );
+}

@@ -18,4 +18,5 @@ return [
     'filters' => [
         'role' => 'Role',
     ],
+    'add_user' => 'Add user',
 ];
