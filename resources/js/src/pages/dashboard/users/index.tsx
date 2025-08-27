@@ -127,13 +127,42 @@ export default function Index({ users, roles }: Props) {
     return role ? __(`pages/users.roles.${role.name.toLowerCase()}`) : '';
   };
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const handleCopy = async (text: string) => {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch (error) {
+        // fall back to older copy method
+      }
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand('copy');
+    } finally {
+      document.body.removeChild(textarea);
+    }
   };
 
   const hoverSx = {
-    '& .action-icons': { display: 'none' },
-    '&:hover .action-icons': { display: 'inline-flex' },
+    '& .action-icons': {
+      display: 'inline-flex',
+      opacity: 0,
+      visibility: 'hidden',
+      pointerEvents: 'none',
+      transition: 'opacity 0.2s',
+    },
+    '&:hover .action-icons': {
+      opacity: 1,
+      visibility: 'visible',
+      pointerEvents: 'auto',
+    },
   };
 
   return (
