@@ -32,13 +32,16 @@ class HandleInertiaRequests extends Middleware
     {
 
       return array_merge(parent::share($request), [
-
-        // Синхронно
         'auth' => [
-                'user' => $request->user(),
-            ],
-        // Отложенно
-        'locale' => fn () =>  App::currentLocale()
+          'user' => $request->user() ? [
+            'name' => $request->user()->name,
+            'email' => $request->user()->email,
+            'avatar' => $request->user()->avatar,
+            'roles' => $request->user()->getRoleNames(),
+          ] : null,
+        ],
+        'locale' => fn () =>  App::currentLocale(),
+        'csrf_token' => csrf_token(),
       ]);
 
 //        return [

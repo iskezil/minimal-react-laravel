@@ -56,7 +56,7 @@ type PageProps = {
       name: string;
       email: string;
       avatar: string;
-      role?: string;
+      roles: string[];
     };
   };
 };
@@ -90,8 +90,10 @@ export function DashboardLayout({
   const isNavHorizontal = settings.state.navLayout === 'horizontal';
   const isNavVertical = isNavMini || settings.state.navLayout === 'vertical';
 
-  const canDisplayItemByRole = (allowedRoles: NavItemProps['allowedRoles']): boolean =>
-    !allowedRoles?.includes(user.role);
+  const canDisplayItemByRole = (allowedRoles: NavItemProps['allowedRoles']): boolean => {
+    const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+    return !roles.some((role) => (user.roles ?? []).includes(role));
+  };
 
   const renderHeader = () => {
     const headerSlotProps: HeaderSectionProps['slotProps'] = {

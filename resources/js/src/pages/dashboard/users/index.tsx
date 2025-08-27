@@ -1,4 +1,5 @@
 import { type ChangeEvent, type SyntheticEvent, useMemo, useState } from 'react';
+import { router, usePage } from '@inertiajs/react';
 
 import { CONFIG } from 'src/global-config';
 import { DashboardContent, DashboardLayout } from 'src/layouts/dashboard';
@@ -6,6 +7,7 @@ import { Iconify } from 'src/components/iconify';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import { toast } from 'src/components/snackbar';
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -52,12 +54,16 @@ interface Props {
   roles: Role[];
 }
 
+type PageProps = { csrf_token: string };
+
 const metadata = { title: `Users | Dashboard - ${CONFIG.appName}` };
 
 // ----------------------------------------------------------------------
 
 export default function Index({ users, roles }: Props) {
   const { __ } = useLang();
+  const { props } = usePage<PageProps>();
+  const csrfToken = props.csrf_token;
 
   const [userList, setUserList] = useState<User[]>(users);
   const [filters, setFilters] = useState<Filters>({ keyword: '', role: null, status: 'all' });
@@ -80,6 +86,19 @@ export default function Index({ users, roles }: Props) {
 
   const handleEditChange = (id: number, field: keyof User, value: any) => {
     setUserList((prev) => prev.map((u) => (u.id === id ? { ...u, [field]: value } : u)));
+  };
+
+  const handleSave = (id: number, field: keyof User) => {
+    const updated = userList.find((u) => u.id === id);
+    if (!updated) return;
+    const data: Record<string, any> = { _token: csrfToken };
+    if (field === 'roles') {
+      data.roles = updated.roles;
+    } else {
+      data[field] = (updated as any)[field];
+    }
+    router.patch(route('users.update', id), data, { preserveScroll: true });
+    setEditing({ id: null, field: null });
   };
 
   const STATUS_OPTIONS = [
@@ -131,6 +150,7 @@ export default function Index({ users, roles }: Props) {
     if (navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(text);
+        toast.success(__('pages/users.copy_success'));
         return;
       } catch (error) {
         // fall back to older copy method
@@ -145,6 +165,7 @@ export default function Index({ users, roles }: Props) {
     textarea.select();
     try {
       document.execCommand('copy');
+      toast.success(__('pages/users.copy_success'));
     } finally {
       document.body.removeChild(textarea);
     }
@@ -254,9 +275,9 @@ export default function Index({ users, roles }: Props) {
                               hiddenLabel
                               autoFocus
                               onChange={(e) => handleEditChange(user.id, 'name', e.target.value)}
-                              onBlur={() => setEditing({ id: null, field: null })}
+                              onBlur={() => handleSave(user.id, 'name')}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') setEditing({ id: null, field: null });
+                                if (e.key === 'Enter') handleSave(user.id, 'name');
                               }}
                             />
                           ) : (
@@ -287,9 +308,9 @@ export default function Index({ users, roles }: Props) {
                               hiddenLabel
                               autoFocus
                               onChange={(e) => handleEditChange(user.id, 'email', e.target.value)}
-                              onBlur={() => setEditing({ id: null, field: null })}
+                              onBlur={() => handleSave(user.id, 'email')}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') setEditing({ id: null, field: null });
+                                if (e.key === 'Enter') handleSave(user.id, 'email');
                               }}
                             />
                           ) : (
@@ -322,8 +343,8 @@ export default function Index({ users, roles }: Props) {
                               onChange={(e) => {
                                 handleEditChange(user.id, 'status', e.target.value);
                               }}
-                              onClose={() => setEditing({ id: null, field: null })}
-                            >
+                                onClose={() => setEditing({ id: null, field: null })}
+                              >
                               {STATUS_OPTIONS.filter((o) => o.value !== 'all').map((o) => (
                                 <MenuItem key={o.value} value={o.value}>
                                   {o.label}
@@ -386,8 +407,8 @@ export default function Index({ users, roles }: Props) {
                               renderValue={(selected) =>
                                 (selected as number[]).map(translateRole).join(', ')
                               }
-                              onClose={() => setEditing({ id: null, field: null })}
-                            >
+                                onClose={() => handleSave(user.id, 'roles')}
+                              >
                               {roles.map((r) => {
                                 const key = r.name.toLowerCase();
                                 return (
