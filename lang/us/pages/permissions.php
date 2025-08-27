@@ -22,6 +22,7 @@ return [
     'cancel' => 'Cancel',
     'roles' => 'Roles',
     'no_roles' => 'No roles',
+    'save' => 'Save',
     'names' => [
         'manage_users' => 'Manage users',
         'manage_roles' => 'Manage roles',

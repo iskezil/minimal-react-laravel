@@ -22,6 +22,7 @@ return [
     'cancel' => 'Cancel',
     'permissions' => 'Permissions',
     'no_permissions' => 'No permissions',
+    'save' => 'Save',
     'names' => [
         'admin' => 'Administrator',
         'user' => 'User',

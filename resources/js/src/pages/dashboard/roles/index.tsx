@@ -28,6 +28,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Grid from '@mui/material/Grid';
 
 // ----------------------------------------------------------------------
 
@@ -45,11 +48,11 @@ type Role = {
 
 type PageProps = { csrf_token: string };
 
-type Props = { roles: Role[] };
+type Props = { roles: Role[]; permissions: Permission[] };
 
 const metadata = { title: `Roles | Dashboard - ${CONFIG.appName}` };
 
-export default function Index({ roles }: Props) {
+export default function Index({ roles, permissions }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
@@ -62,6 +65,7 @@ export default function Index({ roles }: Props) {
   const [newRole, setNewRole] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewRole, setViewRole] = useState<Role | null>(null);
+  const [editRole, setEditRole] = useState<{ id: number; permissions: number[] } | null>(null);
 
   useEffect(() => {
     setRoleList(roles);
@@ -180,6 +184,9 @@ export default function Index({ roles }: Props) {
                         <IconButton color="primary" onClick={() => setViewRole(role)}>
                           <Iconify icon="solar:eye-bold" />
                         </IconButton>
+                        <IconButton color="warning" onClick={() => setEditRole({ id: role.id, permissions: role.permissions.map((p) => p.id) })}>
+                          <Iconify icon="solar:pen-bold" />
+                        </IconButton>
                         <IconButton color="error" onClick={() => setDeleteId(role.id)}>
                           <Iconify icon="solar:trash-bin-trash-bold" />
                         </IconButton>
@@ -249,6 +256,67 @@ export default function Index({ roles }: Props) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setViewRole(null)}>{__('pages/roles.cancel')}</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editRole !== null} onClose={() => setEditRole(null)} fullWidth maxWidth="sm">
+        <DialogTitle>{__('pages/roles.permissions')}</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={1} sx={{ mt: 1 }}>
+            {permissions.map((p) => {
+              const checked = editRole?.permissions.includes(p.id) ?? false;
+              return (
+                <Grid item xs={12} sm={6} md={4} key={p.id}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={checked}
+                        onChange={() =>
+                          setEditRole((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  permissions: checked
+                                    ? prev.permissions.filter((id) => id !== p.id)
+                                    : [...prev.permissions, p.id],
+                                }
+                              : prev
+                          )
+                        }
+                      />
+                    }
+                    label={
+                      PermissionNames[p.name as keyof typeof PermissionNames]
+                        ? __(PermissionNames[p.name as keyof typeof PermissionNames])
+                        : p.name
+                    }
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditRole(null)}>{__('pages/roles.cancel')}</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (!editRole) return;
+              router.patch(
+                route('roles.update', editRole.id),
+                { permissions: editRole.permissions, _token: csrfToken },
+                {
+                  onSuccess: () => {
+                    toast.success(__('pages/roles.permissions'));
+                    setEditRole(null);
+                    router.reload({ only: ['roles'] });
+                  },
+                }
+              );
+            }}
+          >
+            {__('pages/roles.save')}
+          </Button>
         </DialogActions>
       </Dialog>
 
