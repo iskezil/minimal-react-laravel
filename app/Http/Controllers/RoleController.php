@@ -15,12 +15,17 @@ class RoleController extends Controller
     {
         syncLangFiles(['auth', 'navbar', 'navigation', 'pages/roles']);
 
-        $roles = Role::select('id', 'name', 'created_at')
+        $roles = Role::with('permissions:id,name')
+            ->select('id', 'name', 'created_at')
             ->get()
             ->map(fn ($role) => [
                 'id' => $role->id,
                 'name' => $role->name,
                 'created_at' => $role->created_at->toDateString(),
+                'permissions' => $role->permissions->map(fn ($p) => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                ]),
             ]);
 
         return Inertia::render('dashboard/roles', [
