@@ -1,4 +1,4 @@
-import { useState, useMemo, ChangeEvent, useEffect } from 'react';
+import { useState, useMemo, ChangeEvent, useEffect, Fragment } from 'react';
 import { router, usePage } from '@inertiajs/react';
 
 import { CONFIG } from 'src/global-config';
@@ -17,7 +17,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
@@ -29,19 +28,14 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid';
 
 // ----------------------------------------------------------------------
 
-type Role = {
-  id: number;
-  name: string;
-};
-
+type Role = { id: number; name: string };
 type Permission = {
   id: number;
   name: string;
+  module: string;
   created_at: string;
   roles: Role[];
 };
@@ -58,14 +52,11 @@ export default function Index({ permissions, roles }: Props) {
   const csrfToken = props.csrf_token;
 
   const [permissionList, setPermissionList] = useState<Permission[]>(permissions);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
   const [newPermission, setNewPermission] = useState('');
+  const [newModule, setNewModule] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [viewPermission, setViewPermission] = useState<Permission | null>(null);
-  const [editPermission, setEditPermission] = useState<{ id: number; roles: number[] } | null>(null);
 
   useEffect(() => {
     setPermissionList(permissions);
@@ -73,33 +64,31 @@ export default function Index({ permissions, roles }: Props) {
 
   const filtered = useMemo(
     () =>
-      permissionList.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
+      permissionList.filter(
+        (p) =>
+          p.name.toLowerCase().includes(search.toLowerCase()) ||
+          p.module.toLowerCase().includes(search.toLowerCase())
+      ),
     [permissionList, search]
   );
 
-  const paginated = useMemo(
-    () => filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [filtered, page, rowsPerPage]
-  );
-
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const grouped = useMemo(() => {
+    return filtered.reduce((acc, p) => {
+      (acc[p.module] ||= []).push(p);
+      return acc;
+    }, {} as Record<string, Permission[]>);
+  }, [filtered]);
 
   const handleCreate = () => {
     router.post(
       route('permissions.store'),
-      { name: newPermission, _token: csrfToken },
+      { name: newPermission, module: newModule, _token: csrfToken },
       {
         onSuccess: () => {
           toast.success(__('pages/permissions.add_permission'));
           setOpenAdd(false);
           setNewPermission('');
+          setNewModule('');
           router.reload({ only: ['permissions'] });
         },
       }
@@ -116,6 +105,33 @@ export default function Index({ permissions, roles }: Props) {
         router.reload({ only: ['permissions'] });
       },
     });
+  };
+
+  const handleToggleRole = (permission: Permission, roleId: number, checked: boolean) => {
+    const roleIds = checked
+      ? permission.roles.filter((r) => r.id !== roleId).map((r) => r.id)
+      : [...permission.roles.map((r) => r.id), roleId];
+
+    router.patch(
+      route('permissions.update', permission.id),
+      { roles: roleIds, _token: csrfToken },
+      {
+        onSuccess: () => {
+          setPermissionList((prev) =>
+            prev.map((p) =>
+              p.id === permission.id
+                ? {
+                    ...p,
+                    roles: checked
+                      ? p.roles.filter((r) => r.id !== roleId)
+                      : [...p.roles, roles.find((r) => r.id === roleId)!],
+                  }
+                : p
+            )
+          );
+        },
+      }
+    );
   };
 
   return (
@@ -146,9 +162,8 @@ export default function Index({ permissions, roles }: Props) {
               <TextField
                 size="small"
                 value={search}
-                onChange={(e) => {
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   setSearch(e.target.value);
-                  setPage(0);
                 }}
                 placeholder={__('pages/permissions.search')}
                 InputProps={{
@@ -166,43 +181,60 @@ export default function Index({ permissions, roles }: Props) {
                 <TableHead>
                   <TableRow>
                     <TableCell>{__('pages/permissions.table.name')}</TableCell>
-                    <TableCell>{__('pages/permissions.table.display')}</TableCell>
-                    <TableCell>{__('pages/permissions.table.created')}</TableCell>
-                    <TableCell align="center">{__('pages/permissions.table.actions')}</TableCell>
+                    {roles.map((r) => (
+                      <TableCell key={r.id} align="center">
+                        {RoleNames[r.name as keyof typeof RoleNames]
+                          ? __(RoleNames[r.name as keyof typeof RoleNames])
+                          : r.name}
+                      </TableCell>
+                    ))}
+                    <TableCell align="center">
+                      {__('pages/permissions.table.actions')}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {paginated.map((p) => (
-                    <TableRow key={p.id} hover>
-                      <TableCell>{p.name}</TableCell>
-                      <TableCell>
-                        {PermissionNames[p.name as keyof typeof PermissionNames]
-                          ? __(PermissionNames[p.name as keyof typeof PermissionNames])
-                          : p.name}
-                      </TableCell>
-                      <TableCell>{p.created_at}</TableCell>
-                      <TableCell align="center">
-                        <IconButton color="primary" onClick={() => setViewPermission(p)}>
-                          <Iconify icon="solar:eye-bold" />
-                        </IconButton>
-                        <IconButton
-                          color="warning"
-                          onClick={() =>
-                            setEditPermission({ id: p.id, roles: p.roles.map((r) => r.id) })
-                          }
+                  {Object.entries(grouped).map(([module, perms]) => (
+                    <Fragment key={module}>
+                      <TableRow>
+                        <TableCell
+                          colSpan={roles.length + 2}
+                          sx={{ fontWeight: 'bold', bgcolor: 'background.neutral' }}
                         >
-                          <Iconify icon="solar:pen-bold" />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => setDeleteId(p.id)}>
-                          <Iconify icon="solar:trash-bin-trash-bold" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
+                          {module}
+                        </TableCell>
+                      </TableRow>
+                      {perms.map((p) => (
+                        <TableRow key={p.id} hover>
+                          <TableCell>
+                            {PermissionNames[p.name as keyof typeof PermissionNames]
+                              ? __(PermissionNames[p.name as keyof typeof PermissionNames])
+                              : p.name}
+                          </TableCell>
+                          {roles.map((r) => {
+                            const checked = p.roles.some((pr) => pr.id === r.id);
+                            return (
+                              <TableCell key={r.id} align="center">
+                                <Checkbox
+                                  checked={checked}
+                                  onChange={() => handleToggleRole(p, r.id, checked)}
+                                />
+                              </TableCell>
+                            );
+                          })}
+                          <TableCell align="center">
+                            <IconButton color="error" onClick={() => setDeleteId(p.id)}>
+                              <Iconify icon="solar:trash-bin-trash-bold" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </Fragment>
                   ))}
 
-                  {paginated.length === 0 && (
+                  {filtered.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={4} align="center">
+                      <TableCell colSpan={roles.length + 2} align="center">
                         {__('pages/permissions.no_data')}
                       </TableCell>
                     </TableRow>
@@ -210,16 +242,6 @@ export default function Index({ permissions, roles }: Props) {
                 </TableBody>
               </Table>
             </TableContainer>
-
-            <TablePagination
-              component="div"
-              count={filtered.length}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              rowsPerPageOptions={[5, 10, 25]}
-            />
           </Card>
         </DashboardContent>
       </DashboardLayout>
@@ -227,106 +249,34 @@ export default function Index({ permissions, roles }: Props) {
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="xs">
         <DialogTitle>{__('pages/permissions.add_permission')}</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            fullWidth
-            variant="filled"
-            value={newPermission}
-            onChange={(e) => setNewPermission(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAdd(false)}>{__('pages/permissions.cancel')}</Button>
-          <Button variant="contained" onClick={handleCreate} disabled={!newPermission}>
-            {__('pages/permissions.add_permission')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={viewPermission !== null}
-        onClose={() => setViewPermission(null)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>{__('pages/permissions.roles')}</DialogTitle>
-        <DialogContent>
-          <Stack spacing={1} sx={{ mt: 1 }}>
-            {viewPermission?.roles.map((r) => (
-              <div key={r.id}>
-                {RoleNames[r.name as keyof typeof RoleNames]
-                  ? __(RoleNames[r.name as keyof typeof RoleNames])
-                  : r.name}
-              </div>
-            ))}
-            {viewPermission && viewPermission.roles.length === 0 && (
-              <div>{__('pages/permissions.no_roles')}</div>
-            )}
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              autoFocus
+              margin="dense"
+              fullWidth
+              variant="filled"
+              label={__('pages/permissions.table.name')}
+              value={newPermission}
+              onChange={(e) => setNewPermission(e.target.value)}
+            />
+            <TextField
+              margin="dense"
+              fullWidth
+              variant="filled"
+              label={__('pages/permissions.module')}
+              value={newModule}
+              onChange={(e) => setNewModule(e.target.value)}
+            />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setViewPermission(null)}>{__('pages/permissions.cancel')}</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={editPermission !== null} onClose={() => setEditPermission(null)} fullWidth maxWidth="sm">
-        <DialogTitle>{__('pages/permissions.roles')}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={1} sx={{ mt: 1 }}>
-            {roles.map((r) => {
-              const checked = editPermission?.roles.includes(r.id) ?? false;
-              return (
-                <Grid item xs={12} sm={6} md={4} key={r.id}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={checked}
-                        onChange={() =>
-                          setEditPermission((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  roles: checked
-                                    ? prev.roles.filter((id) => id !== r.id)
-                                    : [...prev.roles, r.id],
-                                }
-                              : prev
-                          )
-                        }
-                      />
-                    }
-                    label={
-                      RoleNames[r.name as keyof typeof RoleNames]
-                        ? __(RoleNames[r.name as keyof typeof RoleNames])
-                        : r.name
-                    }
-                  />
-                </Grid>
-              );
-            })}
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditPermission(null)}>{__('pages/permissions.cancel')}</Button>
+          <Button onClick={() => setOpenAdd(false)}>{__('pages/permissions.cancel')}</Button>
           <Button
             variant="contained"
-            onClick={() => {
-              if (!editPermission) return;
-              router.patch(
-                route('permissions.update', editPermission.id),
-                { roles: editPermission.roles, _token: csrfToken },
-                {
-                  onSuccess: () => {
-                    toast.success(__('pages/permissions.roles'));
-                    setEditPermission(null);
-                    router.reload({ only: ['permissions'] });
-                  },
-                }
-              );
-            }}
+            onClick={handleCreate}
+            disabled={!newPermission || !newModule}
           >
-            {__('pages/permissions.save')}
+            {__('pages/permissions.add_permission')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -345,4 +295,3 @@ export default function Index({ permissions, roles }: Props) {
     </>
   );
 }
-

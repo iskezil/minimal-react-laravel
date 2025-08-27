@@ -17,11 +17,12 @@ class PermissionController extends Controller
         syncLangFiles(['auth', 'navbar', 'navigation', 'pages/permissions']);
 
         $permissions = Permission::with('roles:id,name')
-            ->select('id', 'name', 'created_at')
+            ->select('id', 'name', 'module', 'created_at')
             ->get()
             ->map(fn ($permission) => [
                 'id' => $permission->id,
                 'name' => $permission->name,
+                'module' => $permission->module,
                 'created_at' => $permission->created_at->toDateString(),
                 'roles' => $permission->roles->map(fn ($r) => [
                     'id' => $r->id,
@@ -46,9 +47,13 @@ class PermissionController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('permissions', 'name')],
+            'module' => ['required', 'string', 'max:255'],
         ]);
 
-        Permission::create(['name' => $validated['name']]);
+        Permission::create([
+            'name' => $validated['name'],
+            'module' => $validated['module'],
+        ]);
 
         return back();
     }
