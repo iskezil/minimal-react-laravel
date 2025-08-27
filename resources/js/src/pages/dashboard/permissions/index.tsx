@@ -1,4 +1,4 @@
-import { useState, useMemo, ChangeEvent, useEffect, Fragment } from 'react';
+import { ChangeEvent, Fragment, useEffect, useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 
 import { CONFIG } from 'src/global-config';
@@ -9,7 +9,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
-import { RoleNames, PermissionNames } from 'src/enums/rights';
+import { PERMISSION_NAMES, ROLE_NAMES } from 'src/enums/rights';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -28,6 +28,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 import Checkbox from '@mui/material/Checkbox';
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ type Permission = {
   roles: Role[];
 };
 
-type PageProps = { csrf_token: string };
+type PageProps = InertiaPageProps & { csrf_token: string };
 
 type Props = { permissions: Permission[]; roles: Role[] };
 
@@ -73,10 +74,13 @@ export default function Index({ permissions, roles }: Props) {
   );
 
   const grouped = useMemo(() => {
-    return filtered.reduce((acc, p) => {
-      (acc[p.module] ||= []).push(p);
-      return acc;
-    }, {} as Record<string, Permission[]>);
+    return filtered.reduce(
+      (acc, p) => {
+        (acc[p.module] ||= []).push(p);
+        return acc;
+      },
+      {} as Record<string, Permission[]>
+    );
   }, [filtered]);
 
   const handleCreate = () => {
@@ -181,16 +185,14 @@ export default function Index({ permissions, roles }: Props) {
                 <TableHead>
                   <TableRow>
                     <TableCell>{__('pages/permissions.table.name')}</TableCell>
-                    {roles.map((r) => (
-                      <TableCell key={r.id} align="center">
-                        {RoleNames[r.name as keyof typeof RoleNames]
-                          ? __(RoleNames[r.name as keyof typeof RoleNames])
-                          : r.name}
+                    {roles.map((role) => (
+                      <TableCell key={role.id} align="center">
+                        {ROLE_NAMES[role.name as keyof typeof ROLE_NAMES]
+                          ? __(ROLE_NAMES[role.name as keyof typeof ROLE_NAMES])
+                          : role.name}
                       </TableCell>
                     ))}
-                    <TableCell align="center">
-                      {__('pages/permissions.table.actions')}
-                    </TableCell>
+                    <TableCell align="center">{__('pages/permissions.table.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -207,8 +209,8 @@ export default function Index({ permissions, roles }: Props) {
                       {perms.map((p) => (
                         <TableRow key={p.id} hover>
                           <TableCell>
-                            {PermissionNames[p.name as keyof typeof PermissionNames]
-                              ? __(PermissionNames[p.name as keyof typeof PermissionNames])
+                            {PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES]
+                              ? __(PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES])
                               : p.name}
                           </TableCell>
                           {roles.map((r) => {

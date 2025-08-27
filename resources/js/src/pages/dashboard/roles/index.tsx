@@ -1,4 +1,4 @@
-import { useState, useMemo, ChangeEvent, useEffect } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 
 import { CONFIG } from 'src/global-config';
@@ -9,7 +9,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
-import { RoleNames, PermissionNames } from 'src/enums/rights';
+import { PERMISSION_NAMES, ROLE_NAMES } from 'src/enums/rights';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -31,6 +31,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
 
@@ -46,7 +47,7 @@ type Role = {
   permissions: Permission[];
 };
 
-type PageProps = { csrf_token: string };
+type PageProps = InertiaPageProps & { csrf_token: string };
 
 type Props = { roles: Role[]; permissions: Permission[] };
 
@@ -175,8 +176,8 @@ export default function Index({ roles, permissions }: Props) {
                     <TableRow key={role.id} hover>
                       <TableCell>{role.name}</TableCell>
                       <TableCell>
-                        {RoleNames[role.name as keyof typeof RoleNames]
-                          ? __(RoleNames[role.name as keyof typeof RoleNames])
+                        {ROLE_NAMES[role.name as keyof typeof ROLE_NAMES]
+                          ? __(ROLE_NAMES[role.name as keyof typeof ROLE_NAMES])
                           : role.name}
                       </TableCell>
                       <TableCell>{role.created_at}</TableCell>
@@ -184,7 +185,15 @@ export default function Index({ roles, permissions }: Props) {
                         <IconButton color="primary" onClick={() => setViewRole(role)}>
                           <Iconify icon="solar:eye-bold" />
                         </IconButton>
-                        <IconButton color="warning" onClick={() => setEditRole({ id: role.id, permissions: role.permissions.map((p) => p.id) })}>
+                        <IconButton
+                          color="warning"
+                          onClick={() =>
+                            setEditRole({
+                              id: role.id,
+                              permissions: role.permissions.map((p) => p.id),
+                            })
+                          }
+                        >
                           <Iconify icon="solar:pen-bold" />
                         </IconButton>
                         <IconButton color="error" onClick={() => setDeleteId(role.id)}>
@@ -244,8 +253,8 @@ export default function Index({ roles, permissions }: Props) {
           <Stack spacing={1} sx={{ mt: 1 }}>
             {viewRole?.permissions.map((p) => (
               <div key={p.id}>
-                {PermissionNames[p.name as keyof typeof PermissionNames]
-                  ? __(PermissionNames[p.name as keyof typeof PermissionNames])
+                {PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES]
+                  ? __(PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES])
                   : p.name}
               </div>
             ))}
@@ -263,10 +272,10 @@ export default function Index({ roles, permissions }: Props) {
         <DialogTitle>{__('pages/roles.permissions')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={1} sx={{ mt: 1 }}>
-            {permissions.map((p) => {
-              const checked = editRole?.permissions.includes(p.id) ?? false;
+            {permissions.map((permission) => {
+              const checked = editRole?.permissions.includes(permission.id) ?? false;
               return (
-                <Grid item xs={12} sm={6} md={4} key={p.id}>
+                <Grid item xs={12} sm={6} md={4} key={permission.id}>
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -277,8 +286,8 @@ export default function Index({ roles, permissions }: Props) {
                               ? {
                                   ...prev,
                                   permissions: checked
-                                    ? prev.permissions.filter((id) => id !== p.id)
-                                    : [...prev.permissions, p.id],
+                                    ? prev.permissions.filter((id) => id !== permission.id)
+                                    : [...prev.permissions, permission.id],
                                 }
                               : prev
                           )
@@ -286,9 +295,9 @@ export default function Index({ roles, permissions }: Props) {
                       />
                     }
                     label={
-                      PermissionNames[p.name as keyof typeof PermissionNames]
-                        ? __(PermissionNames[p.name as keyof typeof PermissionNames])
-                        : p.name
+                      PERMISSION_NAMES[permission.name as keyof typeof PERMISSION_NAMES]
+                        ? __(PERMISSION_NAMES[permission.name as keyof typeof PERMISSION_NAMES])
+                        : permission.name
                     }
                   />
                 </Grid>
@@ -334,4 +343,3 @@ export default function Index({ roles, permissions }: Props) {
     </>
   );
 }
-

@@ -1,9 +1,14 @@
-export enum RoleNames {
-  admin = 'pages/roles.names.admin',
-  user = 'pages/roles.names.user',
+export enum ROLE_NAMES {
+  ADMIN = 'pages/roles.names.admin',
+  MANAGER = 'pages/roles.names.manager',
+  USER = 'pages/roles.names.user',
 }
 
-export enum PermissionNames {
-  manage_users = 'pages/permissions.names.manage_users',
-  manage_roles = 'pages/permissions.names.manage_roles',
+export enum PERMISSION_NAMES {
+  MANAGE_USERS = 'pages/permissions.names.manage_users',
+  MANAGE_ROLES = 'pages/permissions.names.manage_roles',
+}
+
+export enum PERMISSION_MODULE_NAMES {
+  USERS = 'pages/permissions.names.manage_users',
 }

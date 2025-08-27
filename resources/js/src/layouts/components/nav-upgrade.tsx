@@ -1,9 +1,8 @@
 import type { BoxProps } from '@mui/material/Box';
+import Box from '@mui/material/Box';
 
 import { m } from 'framer-motion';
 import { varAlpha } from 'minimal-shared/utils';
-
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
@@ -15,10 +14,11 @@ import { CONFIG } from 'src/global-config';
 import { Label } from 'src/components/label';
 
 import { usePage } from '@inertiajs/react';
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
 
-type PageProps = {
+type PageProps = InertiaPageProps & {
   auth: {
     user: {
       name: string;

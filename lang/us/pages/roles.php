@@ -25,6 +25,7 @@ return [
     'save' => 'Save',
     'names' => [
         'admin' => 'Administrator',
+        'manager' => 'Manager',
         'user' => 'User',
     ],
 ];
