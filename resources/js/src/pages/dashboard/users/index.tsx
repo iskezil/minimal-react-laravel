@@ -14,6 +14,8 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -201,7 +203,7 @@ export default function Index({ users, roles }: Props) {
                 <TableBody>
                   {paginatedUsers.map((user) => (
                     <TableRow key={user.id} hover>
-                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'name' })}>
+                      <TableCell>
                         {editing.id === user.id && editing.field === 'name' ? (
                           <FilledInput
                             value={user.name}
@@ -210,12 +212,23 @@ export default function Index({ users, roles }: Props) {
                             autoFocus
                             onChange={(e) => handleEditChange(user.id, 'name', e.target.value)}
                             onBlur={() => setEditing({ id: null, field: null })}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') setEditing({ id: null, field: null });
+                            }}
                           />
                         ) : (
-                          user.name
+                          <Stack direction="row" spacing={0.5} alignItems="center">
+                            {user.name}
+                            <IconButton
+                              size="small"
+                              onClick={() => setEditing({ id: user.id, field: 'name' })}
+                            >
+                              <Iconify icon="solar:pen-bold" width={16} />
+                            </IconButton>
+                          </Stack>
                         )}
                       </TableCell>
-                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'email' })}>
+                      <TableCell>
                         {editing.id === user.id && editing.field === 'email' ? (
                           <FilledInput
                             value={user.email}
@@ -224,12 +237,23 @@ export default function Index({ users, roles }: Props) {
                             autoFocus
                             onChange={(e) => handleEditChange(user.id, 'email', e.target.value)}
                             onBlur={() => setEditing({ id: null, field: null })}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') setEditing({ id: null, field: null });
+                            }}
                           />
                         ) : (
-                          user.email
+                          <Stack direction="row" spacing={0.5} alignItems="center">
+                            {user.email}
+                            <IconButton
+                              size="small"
+                              onClick={() => setEditing({ id: user.id, field: 'email' })}
+                            >
+                              <Iconify icon="solar:pen-bold" width={16} />
+                            </IconButton>
+                          </Stack>
                         )}
                       </TableCell>
-                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'status' })}>
+                      <TableCell>
                         {editing.id === user.id && editing.field === 'status' ? (
                           <Select
                             size="small"
@@ -238,8 +262,8 @@ export default function Index({ users, roles }: Props) {
                             value={user.status}
                             onChange={(e) => {
                               handleEditChange(user.id, 'status', e.target.value);
-                              setEditing({ id: null, field: null });
                             }}
+                            onClose={() => setEditing({ id: null, field: null })}
                           >
                             {STATUS_OPTIONS.filter((o) => o.value !== 'all').map((o) => (
                               <MenuItem key={o.value} value={o.value}>
@@ -248,20 +272,28 @@ export default function Index({ users, roles }: Props) {
                             ))}
                           </Select>
                         ) : (
-                          <Label
-                            color={
-                              (user.status === 'active' && 'success') ||
-                              (user.status === 'pending' && 'warning') ||
-                              (user.status === 'banned' && 'error') ||
-                              'default'
-                            }
-                          >
-                            {__(`pages/users.tabs.${user.status}`)}
-                          </Label>
+                          <Stack direction="row" spacing={0.5} alignItems="center">
+                            <Label
+                              color={
+                                (user.status === 'active' && 'success') ||
+                                (user.status === 'pending' && 'warning') ||
+                                (user.status === 'banned' && 'error') ||
+                                'default'
+                              }
+                            >
+                              {__(`pages/users.tabs.${user.status}`)}
+                            </Label>
+                            <IconButton
+                              size="small"
+                              onClick={() => setEditing({ id: user.id, field: 'status' })}
+                            >
+                              <Iconify icon="solar:pen-bold" width={16} />
+                            </IconButton>
+                          </Stack>
                         )}
                       </TableCell>
                       <TableCell>{user.created_at}</TableCell>
-                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'roles' })}>
+                      <TableCell>
                         {editing.id === user.id && editing.field === 'roles' ? (
                           <Select
                             multiple
@@ -282,15 +314,24 @@ export default function Index({ users, roles }: Props) {
                               const key = r.name.toLowerCase();
                               return (
                                 <MenuItem key={r.id} value={r.id}>
-                                  {__(`pages/users.roles.${key}`)}
+                                  <Checkbox checked={user.roles.includes(r.id)} />
+                                  <ListItemText primary={__(`pages/users.roles.${key}`)} />
                                 </MenuItem>
                               );
                             })}
                           </Select>
-                        ) : user.roles.length ? (
-                          user.roles.map(translateRole).join(', ')
                         ) : (
-                          '-'
+                          <Stack direction="row" spacing={0.5} alignItems="center">
+                            {user.roles.length ?
+                              user.roles.map(translateRole).join(', ') :
+                              '-'}
+                            <IconButton
+                              size="small"
+                              onClick={() => setEditing({ id: user.id, field: 'roles' })}
+                            >
+                              <Iconify icon="solar:pen-bold" width={16} />
+                            </IconButton>
+                          </Stack>
                         )}
                       </TableCell>
                       <TableCell align="center">
