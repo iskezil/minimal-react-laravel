@@ -94,6 +94,26 @@ export default function Index({ permissions, roles }: Props) {
     );
   }, [filtered]);
 
+  const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setOpenModules((prev) => {
+      const state = { ...prev };
+      let changed = false;
+      Object.keys(grouped).forEach((key) => {
+        if (state[key] === undefined) {
+          state[key] = true;
+          changed = true;
+        }
+      });
+      return changed ? state : prev;
+    });
+  }, [grouped]);
+
+  const handleToggleModule = (module: string) => {
+    setOpenModules((prev) => ({ ...prev, [module]: !prev[module] }));
+  };
+
   const handleCreate = () => {
     router.post(
       route('permissions.store'),
@@ -212,44 +232,60 @@ export default function Index({ permissions, roles }: Props) {
                       <TableRow>
                         <TableCell
                           colSpan={roles.length + 2}
-                          sx={{ fontWeight: 'bold', bgcolor: 'background.neutral' }}
+                          onClick={() => handleToggleModule(module)}
+                          sx={{
+                            fontWeight: 'bold',
+                            bgcolor: 'background.neutral',
+                            cursor: 'pointer',
+                          }}
                         >
-                          {PERMISSION_MODULE_NAMES[
-                            module as keyof typeof PERMISSION_MODULE_NAMES
-                          ]
-                            ? __(
-                                PERMISSION_MODULE_NAMES[
-                                  module as keyof typeof PERMISSION_MODULE_NAMES
-                                ]
-                              )
-                            : module}
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Iconify
+                              width={16}
+                              icon={
+                                openModules[module]
+                                  ? 'eva:arrow-ios-downward-fill'
+                                  : 'eva:arrow-ios-forward-fill'
+                              }
+                            />
+                            {PERMISSION_MODULE_NAMES[
+                              module as keyof typeof PERMISSION_MODULE_NAMES
+                            ]
+                              ? __(
+                                  PERMISSION_MODULE_NAMES[
+                                    module as keyof typeof PERMISSION_MODULE_NAMES
+                                  ]
+                                )
+                              : module}
+                          </Stack>
                         </TableCell>
                       </TableRow>
-                      {perms.map((p) => (
-                        <TableRow key={p.id} hover>
-                          <TableCell>
-                            {PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES]
-                              ? __(PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES])
-                              : p.name}
-                          </TableCell>
-                          {roles.map((r) => {
-                            const checked = p.roles.some((pr) => pr.id === r.id);
-                            return (
-                              <TableCell key={r.id} align="center">
-                                <Checkbox
-                                  checked={checked}
-                                  onChange={() => handleToggleRole(p, r.id, checked)}
-                                />
-                              </TableCell>
-                            );
-                          })}
-                          <TableCell align="center">
-                            <IconButton color="error" onClick={() => setDeleteId(p.id)}>
-                              <Iconify icon="solar:trash-bin-trash-bold" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {openModules[module] &&
+                        perms.map((p) => (
+                          <TableRow key={p.id} hover>
+                            <TableCell>
+                              {PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES]
+                                ? __(PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES])
+                                : p.name}
+                            </TableCell>
+                            {roles.map((r) => {
+                              const checked = p.roles.some((pr) => pr.id === r.id);
+                              return (
+                                <TableCell key={r.id} align="center">
+                                  <Checkbox
+                                    checked={checked}
+                                    onChange={() => handleToggleRole(p, r.id, checked)}
+                                  />
+                                </TableCell>
+                              );
+                            })}
+                            <TableCell align="center">
+                              <IconButton color="error" onClick={() => setDeleteId(p.id)}>
+                                <Iconify icon="solar:trash-bin-trash-bold" />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
                     </Fragment>
                   ))}
 
