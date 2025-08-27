@@ -37,6 +37,9 @@ Route::middleware('auth')->group(function () {
   Route::post('/roles', [RoleController::class, 'store'])
     ->name('roles.store')
     ->middleware('role:admin');
+  Route::patch('/roles/{role}', [RoleController::class, 'update'])
+    ->name('roles.update')
+    ->middleware('role:admin');
   Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
     ->name('roles.destroy')
     ->middleware('role:admin');
@@ -46,6 +49,9 @@ Route::middleware('auth')->group(function () {
     ->middleware('role:admin');
   Route::post('/permissions', [PermissionController::class, 'store'])
     ->name('permissions.store')
+    ->middleware('role:admin');
+  Route::patch('/permissions/{permission}', [PermissionController::class, 'update'])
+    ->name('permissions.update')
     ->middleware('role:admin');
   Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])
     ->name('permissions.destroy')

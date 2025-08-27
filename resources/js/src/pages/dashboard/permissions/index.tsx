@@ -28,6 +28,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Grid from '@mui/material/Grid';
 
 // ----------------------------------------------------------------------
 
@@ -45,11 +48,11 @@ type Permission = {
 
 type PageProps = { csrf_token: string };
 
-type Props = { permissions: Permission[] };
+type Props = { permissions: Permission[]; roles: Role[] };
 
 const metadata = { title: `Permissions | Dashboard - ${CONFIG.appName}` };
 
-export default function Index({ permissions }: Props) {
+export default function Index({ permissions, roles }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
@@ -62,6 +65,7 @@ export default function Index({ permissions }: Props) {
   const [newPermission, setNewPermission] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewPermission, setViewPermission] = useState<Permission | null>(null);
+  const [editPermission, setEditPermission] = useState<{ id: number; roles: number[] } | null>(null);
 
   useEffect(() => {
     setPermissionList(permissions);
@@ -181,6 +185,14 @@ export default function Index({ permissions }: Props) {
                         <IconButton color="primary" onClick={() => setViewPermission(p)}>
                           <Iconify icon="solar:eye-bold" />
                         </IconButton>
+                        <IconButton
+                          color="warning"
+                          onClick={() =>
+                            setEditPermission({ id: p.id, roles: p.roles.map((r) => r.id) })
+                          }
+                        >
+                          <Iconify icon="solar:pen-bold" />
+                        </IconButton>
                         <IconButton color="error" onClick={() => setDeleteId(p.id)}>
                           <Iconify icon="solar:trash-bin-trash-bold" />
                         </IconButton>
@@ -255,6 +267,67 @@ export default function Index({ permissions }: Props) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setViewPermission(null)}>{__('pages/permissions.cancel')}</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editPermission !== null} onClose={() => setEditPermission(null)} fullWidth maxWidth="sm">
+        <DialogTitle>{__('pages/permissions.roles')}</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={1} sx={{ mt: 1 }}>
+            {roles.map((r) => {
+              const checked = editPermission?.roles.includes(r.id) ?? false;
+              return (
+                <Grid item xs={12} sm={6} md={4} key={r.id}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={checked}
+                        onChange={() =>
+                          setEditPermission((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  roles: checked
+                                    ? prev.roles.filter((id) => id !== r.id)
+                                    : [...prev.roles, r.id],
+                                }
+                              : prev
+                          )
+                        }
+                      />
+                    }
+                    label={
+                      RoleNames[r.name as keyof typeof RoleNames]
+                        ? __(RoleNames[r.name as keyof typeof RoleNames])
+                        : r.name
+                    }
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditPermission(null)}>{__('pages/permissions.cancel')}</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (!editPermission) return;
+              router.patch(
+                route('permissions.update', editPermission.id),
+                { roles: editPermission.roles, _token: csrfToken },
+                {
+                  onSuccess: () => {
+                    toast.success(__('pages/permissions.roles'));
+                    setEditPermission(null);
+                    router.reload({ only: ['permissions'] });
+                  },
+                }
+              );
+            }}
+          >
+            {__('pages/permissions.save')}
+          </Button>
         </DialogActions>
       </Dialog>
 

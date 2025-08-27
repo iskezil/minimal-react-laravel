@@ -8,6 +8,7 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionController extends Controller
 {
@@ -28,8 +29,16 @@ class PermissionController extends Controller
                 ]),
             ]);
 
+        $roles = Role::select('id', 'name')
+            ->get()
+            ->map(fn ($r) => [
+                'id' => $r->id,
+                'name' => $r->name,
+            ]);
+
         return Inertia::render('dashboard/permissions', [
             'permissions' => $permissions,
+            'roles' => $roles,
         ]);
     }
 
@@ -47,6 +56,23 @@ class PermissionController extends Controller
     public function destroy(Permission $permission): RedirectResponse
     {
         $permission->delete();
+        return back();
+    }
+
+    public function update(Request $request, Permission $permission): RedirectResponse
+    {
+        $validated = $request->validate([
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
+        ]);
+
+        $roleNames = [];
+        if (isset($validated['roles'])) {
+            $roleNames = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
+        }
+
+        $permission->syncRoles($roleNames);
+
         return back();
     }
 }
