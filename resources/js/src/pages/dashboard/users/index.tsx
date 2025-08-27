@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent, type SyntheticEvent } from 'react';
+import { type ChangeEvent, type SyntheticEvent, useMemo, useState } from 'react';
 
 import { CONFIG } from 'src/global-config';
 import { DashboardContent, DashboardLayout } from 'src/layouts/dashboard';
@@ -12,8 +12,6 @@ import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Table from '@mui/material/Table';
@@ -29,6 +27,8 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { Label } from 'src/components/label';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { FilledInput } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
 
 // ----------------------------------------------------------------------
 
@@ -100,11 +100,7 @@ export default function Index({ users, roles }: Props) {
   );
 
   const paginatedUsers = useMemo(
-    () =>
-      filteredUsers.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      ),
+    () => filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
     [filteredUsers, page, rowsPerPage]
   );
 
@@ -122,9 +118,7 @@ export default function Index({ users, roles }: Props) {
   };
 
   const getStatusCount = (value: string) =>
-    value === 'all'
-      ? userList.length
-      : userList.filter((user) => user.status === value).length;
+    value === 'all' ? userList.length : userList.filter((user) => user.status === value).length;
 
   const translateRole = (id: number) => {
     const role = roles.find((r) => r.id === id);
@@ -166,7 +160,7 @@ export default function Index({ users, roles }: Props) {
                   icon={
                     <Label
                       variant={
-                        (tab.value === 'all' || tab.value === filters.status) ? 'filled' : 'soft'
+                        tab.value === 'all' || tab.value === filters.status ? 'filled' : 'soft'
                       }
                       color={
                         (tab.value === 'active' && 'success') ||
@@ -182,11 +176,7 @@ export default function Index({ users, roles }: Props) {
               ))}
             </Tabs>
 
-            <UserTableToolbar
-              filters={filters}
-              onFilters={handleFilters}
-              roles={roles}
-            />
+            <UserTableToolbar filters={filters} onFilters={handleFilters} roles={roles} />
 
             <UserTableFiltersResult
               filters={filters}
@@ -211,46 +201,40 @@ export default function Index({ users, roles }: Props) {
                 <TableBody>
                   {paginatedUsers.map((user) => (
                     <TableRow key={user.id} hover>
-                      <TableCell
-                        onDoubleClick={() => setEditing({ id: user.id, field: 'name' })}
-                      >
+                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'name' })}>
                         {editing.id === user.id && editing.field === 'name' ? (
-                          <TextField
+                          <FilledInput
                             value={user.name}
                             size="small"
+                            hiddenLabel
                             autoFocus
-                            onChange={(e) =>
-                              handleEditChange(user.id, 'name', e.target.value)
-                            }
+                            onChange={(e) => handleEditChange(user.id, 'name', e.target.value)}
                             onBlur={() => setEditing({ id: null, field: null })}
                           />
                         ) : (
                           user.name
                         )}
                       </TableCell>
-                      <TableCell
-                        onDoubleClick={() => setEditing({ id: user.id, field: 'email' })}
-                      >
+                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'email' })}>
                         {editing.id === user.id && editing.field === 'email' ? (
-                          <TextField
+                          <FilledInput
                             value={user.email}
                             size="small"
+                            hiddenLabel
                             autoFocus
-                            onChange={(e) =>
-                              handleEditChange(user.id, 'email', e.target.value)
-                            }
+                            onChange={(e) => handleEditChange(user.id, 'email', e.target.value)}
                             onBlur={() => setEditing({ id: null, field: null })}
                           />
                         ) : (
                           user.email
                         )}
                       </TableCell>
-                      <TableCell
-                        onDoubleClick={() => setEditing({ id: user.id, field: 'status' })}
-                      >
+                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'status' })}>
                         {editing.id === user.id && editing.field === 'status' ? (
                           <Select
                             size="small"
+                            variant="filled"
+                            hiddenLabel
                             value={user.status}
                             onChange={(e) => {
                               handleEditChange(user.id, 'status', e.target.value);
@@ -277,13 +261,13 @@ export default function Index({ users, roles }: Props) {
                         )}
                       </TableCell>
                       <TableCell>{user.created_at}</TableCell>
-                      <TableCell
-                        onDoubleClick={() => setEditing({ id: user.id, field: 'roles' })}
-                      >
+                      <TableCell onDoubleClick={() => setEditing({ id: user.id, field: 'roles' })}>
                         {editing.id === user.id && editing.field === 'roles' ? (
                           <Select
                             multiple
                             size="small"
+                            variant="filled"
+                            hiddenLabel
                             value={user.roles}
                             onChange={(e) => {
                               const value = e.target.value as number[];
@@ -367,34 +351,50 @@ function UserTableToolbar({ filters, onFilters, roles }: UserTableToolbarProps) 
     <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ p: 2 }}>
       <TextField
         size="small"
-        label={__('pages/users.search')}
+        variant="filled"
+        hiddenLabel
         value={filters.keyword}
         onChange={(e) => onFilters('keyword', e.target.value)}
         sx={{ width: { xs: 1, sm: 240 } }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="solar:magnifer-linear" width={24} />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
 
-      <FormControl size="small" sx={{ minWidth: 160 }}>
-        <InputLabel>{__('pages/users.filters.role')}</InputLabel>
-        <Select
-          value={filters.role ?? ''}
-          label={__('pages/users.filters.role')}
-          onChange={(e) =>
-            onFilters('role', e.target.value === '' ? null : Number(e.target.value))
-          }
-        >
-          <MenuItem value="">
-            <em>{__('pages/users.filters.role')}</em>
-          </MenuItem>
-          {roles.map((r) => {
-            const key = r.name.toLowerCase();
-            return (
-              <MenuItem key={r.id} value={r.id}>
-                {__(`pages/users.roles.${key}`)}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
+      <TextField
+        select
+        size="small"
+        sx={{ minWidth: '100px', width: 'auto' }}
+        hiddenLabel
+        variant="filled"
+        placeholder={__('pages/users.filters.role')}
+        value={filters.role ?? ''}
+        onChange={(e) => onFilters('role', e.target.value === '' ? null : Number(e.target.value))}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="solar:user-id-bold" width={24} />
+              </InputAdornment>
+            ),
+          },
+        }}
+      >
+        {roles.map((role) => {
+          const key = role.name.toLowerCase();
+          return (
+            <MenuItem key={role.id} value={role.id}>
+              {__(`pages/users.roles.${key}`)}
+            </MenuItem>
+          );
+        })}
+      </TextField>
     </Stack>
   );
 }
@@ -458,5 +458,3 @@ function UserTableFiltersResult({
     </Stack>
   );
 }
-
-
