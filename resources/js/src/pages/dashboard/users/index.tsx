@@ -127,6 +127,15 @@ export default function Index({ users, roles }: Props) {
     return role ? __(`pages/users.roles.${role.name.toLowerCase()}`) : '';
   };
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const hoverSx = {
+    '& .action-icons': { display: 'none' },
+    '&:hover .action-icons': { display: 'inline-flex' },
+  };
+
   return (
     <>
       <title>{metadata.title}</title>
@@ -201,154 +210,201 @@ export default function Index({ users, roles }: Props) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {paginatedUsers.map((user) => (
-                    <TableRow key={user.id} hover>
-                      <TableCell>
-                        {editing.id === user.id && editing.field === 'name' ? (
-                          <FilledInput
-                            value={user.name}
-                            size="small"
-                            hiddenLabel
-                            autoFocus
-                            onChange={(e) => handleEditChange(user.id, 'name', e.target.value)}
-                            onBlur={() => setEditing({ id: null, field: null })}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') setEditing({ id: null, field: null });
-                            }}
-                          />
-                        ) : (
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                            {user.name}
-                            <IconButton
+                  {paginatedUsers.map((user) => {
+                    const rolesText = user.roles.length
+                      ? user.roles.map(translateRole).join(', ')
+                      : '-';
+                    const statusText = __(`pages/users.tabs.${user.status}`);
+                    return (
+                      <TableRow key={user.id} hover>
+                        <TableCell>
+                          {editing.id === user.id && editing.field === 'name' ? (
+                            <FilledInput
+                              value={user.name}
                               size="small"
-                              onClick={() => setEditing({ id: user.id, field: 'name' })}
-                            >
-                              <Iconify icon="solar:pen-bold" width={16} />
-                            </IconButton>
-                          </Stack>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editing.id === user.id && editing.field === 'email' ? (
-                          <FilledInput
-                            value={user.email}
-                            size="small"
-                            hiddenLabel
-                            autoFocus
-                            onChange={(e) => handleEditChange(user.id, 'email', e.target.value)}
-                            onBlur={() => setEditing({ id: null, field: null })}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') setEditing({ id: null, field: null });
-                            }}
-                          />
-                        ) : (
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                            {user.email}
-                            <IconButton
+                              hiddenLabel
+                              autoFocus
+                              onChange={(e) => handleEditChange(user.id, 'name', e.target.value)}
+                              onBlur={() => setEditing({ id: null, field: null })}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') setEditing({ id: null, field: null });
+                              }}
+                            />
+                          ) : (
+                            <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
+                              {user.name}
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => setEditing({ id: user.id, field: 'name' })}
+                              >
+                                <Iconify icon="solar:pen-bold" width={16} />
+                              </IconButton>
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => handleCopy(user.name)}
+                              >
+                                <Iconify icon="solar:copy-bold" width={16} />
+                              </IconButton>
+                            </Stack>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editing.id === user.id && editing.field === 'email' ? (
+                            <FilledInput
+                              value={user.email}
                               size="small"
-                              onClick={() => setEditing({ id: user.id, field: 'email' })}
-                            >
-                              <Iconify icon="solar:pen-bold" width={16} />
-                            </IconButton>
-                          </Stack>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editing.id === user.id && editing.field === 'status' ? (
-                          <Select
-                            size="small"
-                            variant="filled"
-                            hiddenLabel
-                            value={user.status}
-                            onChange={(e) => {
-                              handleEditChange(user.id, 'status', e.target.value);
-                            }}
-                            onClose={() => setEditing({ id: null, field: null })}
-                          >
-                            {STATUS_OPTIONS.filter((o) => o.value !== 'all').map((o) => (
-                              <MenuItem key={o.value} value={o.value}>
-                                {o.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        ) : (
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                            <Label
-                              color={
-                                (user.status === 'active' && 'success') ||
-                                (user.status === 'pending' && 'warning') ||
-                                (user.status === 'banned' && 'error') ||
-                                'default'
-                              }
-                            >
-                              {__(`pages/users.tabs.${user.status}`)}
-                            </Label>
-                            <IconButton
+                              hiddenLabel
+                              autoFocus
+                              onChange={(e) => handleEditChange(user.id, 'email', e.target.value)}
+                              onBlur={() => setEditing({ id: null, field: null })}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') setEditing({ id: null, field: null });
+                              }}
+                            />
+                          ) : (
+                            <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
+                              {user.email}
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => setEditing({ id: user.id, field: 'email' })}
+                              >
+                                <Iconify icon="solar:pen-bold" width={16} />
+                              </IconButton>
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => handleCopy(user.email)}
+                              >
+                                <Iconify icon="solar:copy-bold" width={16} />
+                              </IconButton>
+                            </Stack>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editing.id === user.id && editing.field === 'status' ? (
+                            <Select
                               size="small"
-                              onClick={() => setEditing({ id: user.id, field: 'status' })}
+                              variant="filled"
+                              hiddenLabel
+                              value={user.status}
+                              onChange={(e) => {
+                                handleEditChange(user.id, 'status', e.target.value);
+                              }}
+                              onClose={() => setEditing({ id: null, field: null })}
                             >
-                              <Iconify icon="solar:pen-bold" width={16} />
-                            </IconButton>
-                          </Stack>
-                        )}
-                      </TableCell>
-                      <TableCell>{user.created_at}</TableCell>
-                      <TableCell>
-                        {editing.id === user.id && editing.field === 'roles' ? (
-                          <Select
-                            multiple
-                            size="small"
-                            variant="filled"
-                            hiddenLabel
-                            value={user.roles}
-                            onChange={(e) => {
-                              const value = e.target.value as number[];
-                              handleEditChange(user.id, 'roles', value);
-                            }}
-                            renderValue={(selected) =>
-                              (selected as number[]).map(translateRole).join(', ')
-                            }
-                            onClose={() => setEditing({ id: null, field: null })}
-                          >
-                            {roles.map((r) => {
-                              const key = r.name.toLowerCase();
-                              return (
-                                <MenuItem key={r.id} value={r.id}>
-                                  <Checkbox checked={user.roles.includes(r.id)} />
-                                  <ListItemText primary={__(`pages/users.roles.${key}`)} />
+                              {STATUS_OPTIONS.filter((o) => o.value !== 'all').map((o) => (
+                                <MenuItem key={o.value} value={o.value}>
+                                  {o.label}
                                 </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        ) : (
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                            {user.roles.length ?
-                              user.roles.map(translateRole).join(', ') :
-                              '-'}
+                              ))}
+                            </Select>
+                          ) : (
+                            <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
+                              <Label
+                                color={
+                                  (user.status === 'active' && 'success') ||
+                                  (user.status === 'pending' && 'warning') ||
+                                  (user.status === 'banned' && 'error') ||
+                                  'default'
+                                }
+                              >
+                                {statusText}
+                              </Label>
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => setEditing({ id: user.id, field: 'status' })}
+                              >
+                                <Iconify icon="solar:pen-bold" width={16} />
+                              </IconButton>
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => handleCopy(statusText)}
+                              >
+                                <Iconify icon="solar:copy-bold" width={16} />
+                              </IconButton>
+                            </Stack>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
+                            {user.created_at}
                             <IconButton
+                              className="action-icons"
                               size="small"
-                              onClick={() => setEditing({ id: user.id, field: 'roles' })}
+                              onClick={() => handleCopy(user.created_at)}
                             >
-                              <Iconify icon="solar:pen-bold" width={16} />
+                              <Iconify icon="solar:copy-bold" width={16} />
                             </IconButton>
                           </Stack>
-                        )}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Stack direction="row" spacing={1} justifyContent="center">
-                          <IconButton size="small">
-                            <Iconify icon="solar:eye-bold" />
-                          </IconButton>
-                          <IconButton size="small" color="primary">
-                            <Iconify icon="solar:pen-bold" />
-                          </IconButton>
-                          <IconButton size="small" color="error">
-                            <Iconify icon="solar:trash-bin-trash-bold" />
-                          </IconButton>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell>
+                          {editing.id === user.id && editing.field === 'roles' ? (
+                            <Select
+                              multiple
+                              size="small"
+                              variant="filled"
+                              hiddenLabel
+                              value={user.roles}
+                              onChange={(e) => {
+                                const value = e.target.value as number[];
+                                handleEditChange(user.id, 'roles', value);
+                              }}
+                              renderValue={(selected) =>
+                                (selected as number[]).map(translateRole).join(', ')
+                              }
+                              onClose={() => setEditing({ id: null, field: null })}
+                            >
+                              {roles.map((r) => {
+                                const key = r.name.toLowerCase();
+                                return (
+                                  <MenuItem key={r.id} value={r.id}>
+                                    <Checkbox checked={user.roles.includes(r.id)} />
+                                    <ListItemText primary={__(`pages/users.roles.${key}`)} />
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          ) : (
+                            <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
+                              {rolesText}
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => setEditing({ id: user.id, field: 'roles' })}
+                              >
+                                <Iconify icon="solar:pen-bold" width={16} />
+                              </IconButton>
+                              <IconButton
+                                className="action-icons"
+                                size="small"
+                                onClick={() => handleCopy(rolesText)}
+                              >
+                                <Iconify icon="solar:copy-bold" width={16} />
+                              </IconButton>
+                            </Stack>
+                          )}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Stack direction="row" spacing={1} justifyContent="center">
+                            <IconButton size="small">
+                              <Iconify icon="solar:eye-bold" />
+                            </IconButton>
+                            <IconButton size="small" color="primary">
+                              <Iconify icon="solar:pen-bold" />
+                            </IconButton>
+                            <IconButton size="small" color="error">
+                              <Iconify icon="solar:trash-bin-trash-bold" />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
 
                   {paginatedUsers.length === 0 && (
                     <TableRow>
