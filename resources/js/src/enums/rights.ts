@@ -10,5 +10,5 @@ export enum PERMISSION_NAMES {
 }
 
 export enum PERMISSION_MODULE_NAMES {
-  USERS = 'pages/permissions.names.manage_users',
+  USERS = 'pages/permissions.modules.users',
 }

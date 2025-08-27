@@ -28,4 +28,7 @@ return [
         'manage_users' => 'Manage users',
         'manage_roles' => 'Manage roles',
     ],
+    'modules' => [
+        'users' => 'Users'
+    ],
 ];
