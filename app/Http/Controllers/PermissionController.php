@@ -15,12 +15,17 @@ class PermissionController extends Controller
     {
         syncLangFiles(['auth', 'navbar', 'navigation', 'pages/permissions']);
 
-        $permissions = Permission::select('id', 'name', 'created_at')
+        $permissions = Permission::with('roles:id,name')
+            ->select('id', 'name', 'created_at')
             ->get()
             ->map(fn ($permission) => [
                 'id' => $permission->id,
                 'name' => $permission->name,
                 'created_at' => $permission->created_at->toDateString(),
+                'roles' => $permission->roles->map(fn ($r) => [
+                    'id' => $r->id,
+                    'name' => $r->name,
+                ]),
             ]);
 
         return Inertia::render('dashboard/permissions', [

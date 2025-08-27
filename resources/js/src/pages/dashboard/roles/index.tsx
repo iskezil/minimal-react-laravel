@@ -9,6 +9,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
+import { RoleNames, PermissionNames } from 'src/enums/rights';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -30,10 +31,16 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 // ----------------------------------------------------------------------
 
+type Permission = {
+  id: number;
+  name: string;
+};
+
 type Role = {
   id: number;
   name: string;
   created_at: string;
+  permissions: Permission[];
 };
 
 type PageProps = { csrf_token: string };
@@ -54,6 +61,7 @@ export default function Index({ roles }: Props) {
   const [openAdd, setOpenAdd] = useState(false);
   const [newRole, setNewRole] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [viewRole, setViewRole] = useState<Role | null>(null);
 
   useEffect(() => {
     setRoleList(roles);
@@ -153,6 +161,7 @@ export default function Index({ roles }: Props) {
                 <TableHead>
                   <TableRow>
                     <TableCell>{__('pages/roles.table.name')}</TableCell>
+                    <TableCell>{__('pages/roles.table.display')}</TableCell>
                     <TableCell>{__('pages/roles.table.created')}</TableCell>
                     <TableCell align="center">{__('pages/roles.table.actions')}</TableCell>
                   </TableRow>
@@ -161,8 +170,16 @@ export default function Index({ roles }: Props) {
                   {paginated.map((role) => (
                     <TableRow key={role.id} hover>
                       <TableCell>{role.name}</TableCell>
+                      <TableCell>
+                        {RoleNames[role.name as keyof typeof RoleNames]
+                          ? __(RoleNames[role.name as keyof typeof RoleNames])
+                          : role.name}
+                      </TableCell>
                       <TableCell>{role.created_at}</TableCell>
                       <TableCell align="center">
+                        <IconButton color="primary" onClick={() => setViewRole(role)}>
+                          <Iconify icon="solar:eye-bold" />
+                        </IconButton>
                         <IconButton color="error" onClick={() => setDeleteId(role.id)}>
                           <Iconify icon="solar:trash-bin-trash-bold" />
                         </IconButton>
@@ -172,7 +189,7 @@ export default function Index({ roles }: Props) {
 
                   {paginated.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={3} align="center">
+                      <TableCell colSpan={4} align="center">
                         {__('pages/roles.no_data')}
                       </TableCell>
                     </TableRow>
@@ -201,15 +218,37 @@ export default function Index({ roles }: Props) {
             autoFocus
             margin="dense"
             fullWidth
+            variant="filled"
             value={newRole}
             onChange={(e) => setNewRole(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenAdd(false)}>Cancel</Button>
+          <Button onClick={() => setOpenAdd(false)}>{__('pages/roles.cancel')}</Button>
           <Button variant="contained" onClick={handleCreate} disabled={!newRole}>
             {__('pages/roles.add_role')}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={viewRole !== null} onClose={() => setViewRole(null)} fullWidth maxWidth="sm">
+        <DialogTitle>{__('pages/roles.permissions')}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1} sx={{ mt: 1 }}>
+            {viewRole?.permissions.map((p) => (
+              <div key={p.id}>
+                {PermissionNames[p.name as keyof typeof PermissionNames]
+                  ? __(PermissionNames[p.name as keyof typeof PermissionNames])
+                  : p.name}
+              </div>
+            ))}
+            {viewRole && viewRole.permissions.length === 0 && (
+              <div>{__('pages/roles.no_permissions')}</div>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewRole(null)}>{__('pages/roles.cancel')}</Button>
         </DialogActions>
       </Dialog>
 

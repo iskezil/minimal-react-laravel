@@ -8,6 +8,7 @@ return [
     ],
     'table' => [
         'name' => 'Name',
+        'display' => 'Display name',
         'created' => 'Created',
         'actions' => 'Actions',
     ],
@@ -18,4 +19,11 @@ return [
     'delete_confirm' => 'Are you sure you want to delete this role?',
     'delete' => 'Delete',
     'delete_success' => 'Role deleted',
+    'cancel' => 'Cancel',
+    'permissions' => 'Permissions',
+    'no_permissions' => 'No permissions',
+    'names' => [
+        'admin' => 'Administrator',
+        'user' => 'User',
+    ],
 ];

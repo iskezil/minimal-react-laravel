@@ -9,6 +9,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
+import { RoleNames, PermissionNames } from 'src/enums/rights';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -30,10 +31,16 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 // ----------------------------------------------------------------------
 
+type Role = {
+  id: number;
+  name: string;
+};
+
 type Permission = {
   id: number;
   name: string;
   created_at: string;
+  roles: Role[];
 };
 
 type PageProps = { csrf_token: string };
@@ -54,6 +61,7 @@ export default function Index({ permissions }: Props) {
   const [openAdd, setOpenAdd] = useState(false);
   const [newPermission, setNewPermission] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [viewPermission, setViewPermission] = useState<Permission | null>(null);
 
   useEffect(() => {
     setPermissionList(permissions);
@@ -154,6 +162,7 @@ export default function Index({ permissions }: Props) {
                 <TableHead>
                   <TableRow>
                     <TableCell>{__('pages/permissions.table.name')}</TableCell>
+                    <TableCell>{__('pages/permissions.table.display')}</TableCell>
                     <TableCell>{__('pages/permissions.table.created')}</TableCell>
                     <TableCell align="center">{__('pages/permissions.table.actions')}</TableCell>
                   </TableRow>
@@ -162,8 +171,16 @@ export default function Index({ permissions }: Props) {
                   {paginated.map((p) => (
                     <TableRow key={p.id} hover>
                       <TableCell>{p.name}</TableCell>
+                      <TableCell>
+                        {PermissionNames[p.name as keyof typeof PermissionNames]
+                          ? __(PermissionNames[p.name as keyof typeof PermissionNames])
+                          : p.name}
+                      </TableCell>
                       <TableCell>{p.created_at}</TableCell>
                       <TableCell align="center">
+                        <IconButton color="primary" onClick={() => setViewPermission(p)}>
+                          <Iconify icon="solar:eye-bold" />
+                        </IconButton>
                         <IconButton color="error" onClick={() => setDeleteId(p.id)}>
                           <Iconify icon="solar:trash-bin-trash-bold" />
                         </IconButton>
@@ -173,7 +190,7 @@ export default function Index({ permissions }: Props) {
 
                   {paginated.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={3} align="center">
+                      <TableCell colSpan={4} align="center">
                         {__('pages/permissions.no_data')}
                       </TableCell>
                     </TableRow>
@@ -202,15 +219,42 @@ export default function Index({ permissions }: Props) {
             autoFocus
             margin="dense"
             fullWidth
+            variant="filled"
             value={newPermission}
             onChange={(e) => setNewPermission(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenAdd(false)}>Cancel</Button>
+          <Button onClick={() => setOpenAdd(false)}>{__('pages/permissions.cancel')}</Button>
           <Button variant="contained" onClick={handleCreate} disabled={!newPermission}>
             {__('pages/permissions.add_permission')}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={viewPermission !== null}
+        onClose={() => setViewPermission(null)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>{__('pages/permissions.roles')}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1} sx={{ mt: 1 }}>
+            {viewPermission?.roles.map((r) => (
+              <div key={r.id}>
+                {RoleNames[r.name as keyof typeof RoleNames]
+                  ? __(RoleNames[r.name as keyof typeof RoleNames])
+                  : r.name}
+              </div>
+            ))}
+            {viewPermission && viewPermission.roles.length === 0 && (
+              <div>{__('pages/permissions.no_roles')}</div>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewPermission(null)}>{__('pages/permissions.cancel')}</Button>
         </DialogActions>
       </Dialog>
 

@@ -23,15 +23,22 @@ export function NavList({
   const pathname = usePathname();
   const navItemRef = useRef<HTMLButtonElement>(null);
 
-  const isActive = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
+  const matchSelf = isActiveLink(pathname, data.path, data.deepMatch ?? !!data.children);
+  const matchChild =
+    data.children?.some((child) =>
+      isActiveLink(pathname, child.path, child.deepMatch ?? !!child.children)
+    ) ?? false;
+  const isActive = matchSelf || matchChild;
 
-  const { value: open, onFalse: onClose, onToggle } = useBoolean(isActive);
+  const { value: open, onTrue: onOpen, onFalse: onClose, onToggle } = useBoolean(isActive);
 
   useEffect(() => {
-    if (!isActive) {
+    if (isActive) {
+      onOpen();
+    } else {
       onClose();
     }
-  }, [pathname]);
+  }, [pathname, isActive, onClose, onOpen]);
 
   const handleToggleMenu = useCallback(() => {
     if (data.children) {
