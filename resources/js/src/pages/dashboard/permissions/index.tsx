@@ -9,7 +9,11 @@ import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
-import { PERMISSION_NAMES, ROLE_NAMES } from 'src/enums/rights';
+import {
+  PERMISSION_NAMES,
+  ROLE_NAMES,
+  PERMISSION_MODULE_NAMES,
+} from 'src/enums/rights';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -28,6 +32,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 import Checkbox from '@mui/material/Checkbox';
+import MenuItem from '@mui/material/MenuItem';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
@@ -55,8 +60,14 @@ export default function Index({ permissions, roles }: Props) {
   const [permissionList, setPermissionList] = useState<Permission[]>(permissions);
   const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
+  const moduleKeys =
+    Object.keys(PERMISSION_MODULE_NAMES) as Array<
+      keyof typeof PERMISSION_MODULE_NAMES
+    >;
   const [newPermission, setNewPermission] = useState('');
-  const [newModule, setNewModule] = useState('');
+  const [newModule, setNewModule] = useState<
+    keyof typeof PERMISSION_MODULE_NAMES
+  >(moduleKeys[0]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -92,7 +103,7 @@ export default function Index({ permissions, roles }: Props) {
           toast.success(__('pages/permissions.add_permission'));
           setOpenAdd(false);
           setNewPermission('');
-          setNewModule('');
+          setNewModule(moduleKeys[0]);
           router.reload({ only: ['permissions'] });
         },
       }
@@ -203,7 +214,15 @@ export default function Index({ permissions, roles }: Props) {
                           colSpan={roles.length + 2}
                           sx={{ fontWeight: 'bold', bgcolor: 'background.neutral' }}
                         >
-                          {module}
+                          {PERMISSION_MODULE_NAMES[
+                            module as keyof typeof PERMISSION_MODULE_NAMES
+                          ]
+                            ? __(
+                                PERMISSION_MODULE_NAMES[
+                                  module as keyof typeof PERMISSION_MODULE_NAMES
+                                ]
+                              )
+                            : module}
                         </TableCell>
                       </TableRow>
                       {perms.map((p) => (
@@ -262,13 +281,24 @@ export default function Index({ permissions, roles }: Props) {
               onChange={(e) => setNewPermission(e.target.value)}
             />
             <TextField
+              select
               margin="dense"
               fullWidth
               variant="filled"
               label={__('pages/permissions.module')}
               value={newModule}
-              onChange={(e) => setNewModule(e.target.value)}
-            />
+              onChange={(e) =>
+                setNewModule(
+                  e.target.value as keyof typeof PERMISSION_MODULE_NAMES
+                )
+              }
+            >
+              {moduleKeys.map((key) => (
+                <MenuItem key={key} value={key}>
+                  {__(PERMISSION_MODULE_NAMES[key])}
+                </MenuItem>
+              ))}
+            </TextField>
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -276,7 +306,7 @@ export default function Index({ permissions, roles }: Props) {
           <Button
             variant="contained"
             onClick={handleCreate}
-            disabled={!newPermission || !newModule}
+            disabled={!newPermission}
           >
             {__('pages/permissions.add_permission')}
           </Button>
