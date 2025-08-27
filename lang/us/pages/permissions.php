@@ -14,6 +14,7 @@ return [
     ],
     'search' => 'Search...',
     'add_permission' => 'Add permission',
+    'module' => 'Module',
     'no_data' => 'No permissions found',
     'delete_permission' => 'Delete permission',
     'delete_confirm' => 'Are you sure you want to delete this permission?',
