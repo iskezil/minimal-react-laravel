@@ -10,10 +10,9 @@ return [
     'management' => [
         'subheader' => 'Management',
         'users' => 'Users',
-        'group' => 'Group',
-        'four' => 'Four',
-        'five' => 'Five',
-        'six' => 'Six',
+        'rights' => 'Rights',
+        'roles' => 'Roles',
+        'permissions' => 'Permissions',
     ],
     'auth' => [
         'subheader' => 'Auth',

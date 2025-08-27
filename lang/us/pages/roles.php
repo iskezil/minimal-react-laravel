@@ -1,0 +1,21 @@
+<?php
+
+return [
+    'title' => 'Roles',
+    'breadcrumbs' => [
+        'dashboard' => 'Dashboard',
+        'roles' => 'Roles',
+    ],
+    'table' => [
+        'name' => 'Name',
+        'created' => 'Created',
+        'actions' => 'Actions',
+    ],
+    'search' => 'Search...',
+    'add_role' => 'Add role',
+    'no_data' => 'No roles found',
+    'delete_role' => 'Delete role',
+    'delete_confirm' => 'Are you sure you want to delete this role?',
+    'delete' => 'Delete',
+    'delete_success' => 'Role deleted',
+];

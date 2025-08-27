@@ -84,21 +84,17 @@ export function useNavData(): NavSectionProps['data'] {
             allowedRoles: ['admin'],
           },
           {
-            title: __('navigation.management.group'),
-            path: paths.dashboard.group.root,
-            icon: ICONS.user,
+            title: __('navigation.management.rights'),
+            path: paths.roles,
+            icon: ICONS.lock,
             children: [
               {
-                title: __('navigation.management.four'),
-                path: paths.dashboard.group.root,
+                title: __('navigation.management.roles'),
+                path: paths.roles,
               },
               {
-                title: __('navigation.management.five'),
-                path: paths.dashboard.group.five,
-              },
-              {
-                title: __('navigation.management.six'),
-                path: paths.dashboard.group.six,
+                title: __('navigation.management.permissions'),
+                path: paths.permissions,
               },
             ],
           },

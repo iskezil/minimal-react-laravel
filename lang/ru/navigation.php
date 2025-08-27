@@ -10,10 +10,9 @@ return [
     'management' => [
         'subheader' => 'Управление',
         'users' => 'Пользователи',
-        'group' => 'Группа',
-        'four' => 'Четыре',
-        'five' => 'Пять',
-        'six' => 'Шесть',
+        'rights' => 'Права',
+        'roles' => 'Роли',
+        'permissions' => 'Разрешения',
     ],
     'auth' => [
         'subheader' => 'Аутентификация',

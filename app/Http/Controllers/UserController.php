@@ -63,4 +63,10 @@ class UserController extends Controller
 
         return back();
     }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        $user->delete();
+        return back();
+    }
 }
