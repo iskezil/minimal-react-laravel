@@ -36,4 +36,8 @@ return [
     'no_data' => 'No users found',
     'add_user' => 'Add user',
     'copy_success' => 'Data successfully copied',
+    'delete_user' => 'Delete user',
+    'delete_confirm' => 'Are you sure you want to delete this user?',
+    'delete' => 'Delete',
+    'delete_success' => 'User deleted',
 ];

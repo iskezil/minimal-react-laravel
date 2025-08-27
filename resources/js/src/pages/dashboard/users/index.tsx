@@ -1,4 +1,4 @@
-import { type ChangeEvent, type SyntheticEvent, useMemo, useState } from 'react';
+import { type ChangeEvent, type SyntheticEvent, useMemo, useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 
 import { CONFIG } from 'src/global-config';
@@ -33,6 +33,7 @@ import { Label } from 'src/components/label';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { FilledInput } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
+import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -73,6 +74,7 @@ export default function Index({ users, roles }: Props) {
     id: null,
     field: null,
   });
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const handleFilters = (name: keyof Filters, value: string | number | null) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -184,6 +186,22 @@ export default function Index({ users, roles }: Props) {
       visibility: 'visible',
       pointerEvents: 'auto',
     },
+  };
+
+  useEffect(() => {
+    setUserList(users);
+  }, [users]);
+
+  const handleDelete = () => {
+    if (deleteId === null) return;
+    router.delete(route('users.destroy', deleteId), {
+      data: { _token: csrfToken },
+      onSuccess: () => {
+        toast.success(__('pages/users.delete_success'));
+        setDeleteId(null);
+        router.reload({ only: ['users'] });
+      },
+    });
   };
 
   return (
@@ -447,7 +465,7 @@ export default function Index({ users, roles }: Props) {
                             <IconButton size="small" color="primary">
                               <Iconify icon="solar:pen-bold" />
                             </IconButton>
-                            <IconButton size="small" color="error">
+                            <IconButton size="small" color="error" onClick={() => setDeleteId(user.id)}>
                               <Iconify icon="solar:trash-bin-trash-bold" />
                             </IconButton>
                           </Stack>
@@ -479,6 +497,18 @@ export default function Index({ users, roles }: Props) {
           </Card>
         </DashboardContent>
       </DashboardLayout>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        title={__('pages/users.delete_user')}
+        content={__('pages/users.delete_confirm')}
+        action={
+          <Button color="error" variant="contained" onClick={handleDelete}>
+            {__('pages/users.delete')}
+          </Button>
+        }
+      />
     </>
   );
 }
