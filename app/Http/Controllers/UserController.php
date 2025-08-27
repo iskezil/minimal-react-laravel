@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
@@ -30,5 +33,34 @@ class UserController extends Controller
             'users' => $users,
             'roles' => $roles,
         ]);
+    }
+
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'email' => ['sometimes', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
+        ]);
+
+        if (isset($validated['name'])) {
+            $user->name = $validated['name'];
+        }
+
+        if (isset($validated['email'])) {
+            $user->email = $validated['email'];
+        }
+
+        if (isset($validated['name']) || isset($validated['email'])) {
+            $user->save();
+        }
+
+        if (isset($validated['roles'])) {
+            $roleNames = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
+            $user->syncRoles($roleNames);
+        }
+
+        return back();
     }
 }

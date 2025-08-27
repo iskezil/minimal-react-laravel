@@ -20,6 +20,10 @@ Route::middleware('auth')->group(function () {
   Route::get('/users', [UserController::class, 'index'])
     ->name('users.index')
     ->middleware('role:admin');
+
+  Route::patch('/users/{user}', [UserController::class, 'update'])
+    ->name('users.update')
+    ->middleware('role:admin');
 });
 
 

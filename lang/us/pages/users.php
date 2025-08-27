@@ -35,4 +35,5 @@ return [
     ],
     'no_data' => 'No users found',
     'add_user' => 'Add user',
+    'copy_success' => 'Data successfully copied',
 ];
