@@ -46,6 +46,7 @@ return [
     'create_user' => 'Create user',
     'edit_user' => 'Edit user',
     'create_success' => 'User created',
+    'create_error' => 'Failed to create user',
     'update_success' => 'User updated',
     'update_error' => 'Failed to update user',
     'edit_tabs' => [
@@ -56,6 +57,7 @@ return [
           'name' => 'Full name',
           'email' => 'Email address',
           'password' => 'Password',
+          'current_password' => 'Current password',
           'roles' => 'Roles',
           'avatar' => 'Upload photo',
           'status' => 'Active',

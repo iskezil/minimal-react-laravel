@@ -11,7 +11,6 @@ import { IconButton, InputAdornment } from '@mui/material';
 import { Field, Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
-import { paths } from 'src/routes/paths';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { useBoolean } from 'minimal-shared/hooks';
 import { Iconify } from '@/components/iconify';
@@ -23,6 +22,7 @@ type User = { id: number };
 type PageProps = InertiaPageProps & { csrf_token: string };
 
 type FormValues = {
+  current_password: string;
   password: string;
   password_confirmation: string;
 };
@@ -39,6 +39,7 @@ export function EditPasswordUserForm({ currentUser }: Props) {
 
   const Schema = z
     .object({
+      current_password: z.string().min(1, { message: __('validation.required') }),
       password: z.string().min(6, { message: __('validation.min.string', { min: 6 }) }),
       password_confirmation: z.string().min(1, { message: __('validation.required') }),
     })
@@ -49,7 +50,8 @@ export function EditPasswordUserForm({ currentUser }: Props) {
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(Schema),
-    defaultValues: { password: '', password_confirmation: '' },
+    mode: 'onChange',
+    defaultValues: { current_password: '', password: '', password_confirmation: '' },
   });
 
   const {
@@ -62,13 +64,14 @@ export function EditPasswordUserForm({ currentUser }: Props) {
     const payload = new FormData();
     payload.append('_token', csrfToken);
     payload.append('_method', 'PATCH');
+    payload.append('current_password', data.current_password);
     payload.append('password', data.password);
     payload.append('password_confirmation', data.password_confirmation);
 
     router.post(route('users.update', currentUser.id), payload, {
       onSuccess: () => {
         toast.success(__('pages/users.update_success'));
-        router.visit(paths.users);
+        methods.reset();
       },
       onError: (errors) => {
         Object.entries(errors).forEach(([field, message]) => {
@@ -83,6 +86,25 @@ export function EditPasswordUserForm({ currentUser }: Props) {
     <Form methods={methods} onSubmit={onSubmit}>
       <Card sx={{ p: 3 }}>
         <Stack spacing={3}>
+          <Field.Text
+            name="current_password"
+            type={showPassword.value ? 'text' : 'password'}
+            label={__('pages/users.form.current_password')}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={showPassword.onToggle} edge="end">
+                      <Iconify
+                        icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                      />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+
           <Field.Text
             name="password"
             type={showPassword.value ? 'text' : 'password'}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -68,7 +69,8 @@ class UserController extends Controller
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
 
-        $avatarPath = $request->file('avatar')?->store('avatars', 'public');
+        $avatarPath = $request->file('avatar')?->store('avatars', 'public')
+            ?? config('app.default_avatar');
 
         $user = User::create([
             'name' => $validated['name'],
@@ -98,7 +100,11 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'avatar' => $user->avatar ? asset(Storage::url($user->avatar)) : null,
+                'avatar' => $user->avatar
+                    ? (Storage::disk('public')->exists($user->avatar)
+                        ? asset(Storage::url($user->avatar))
+                        : asset($user->avatar))
+                    : null,
                 'status' => $user->status,
                 'roles' => $user->roles->pluck('id')->toArray(),
                 'email_verified_at' => $user->email_verified_at,
@@ -113,6 +119,11 @@ class UserController extends Controller
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'current_password' => ['required_with:password', function ($attribute, $value, $fail) use ($user) {
+                if (!Hash::check($value, $user->password)) {
+                    $fail(__('validation.current_password'));
+                }
+            }],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif', 'max:3072'],
             'status' => ['sometimes', Rule::in(['active', 'pending', 'banned'])],
             'email_verified_at' => ['nullable', 'date'],
