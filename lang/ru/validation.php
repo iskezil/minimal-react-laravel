@@ -48,7 +48,7 @@ return [
   'distinct' => ':attribute поле имеет повторяющееся значение.',
   'doesnt_end_with' => ':attribute не должно заканчиваться одним из следующих значений: :values.',
   'doesnt_start_with' => ':attribute не должно начинаться с одного из следующих пунктов: :values.',
-  'email' => ':attribute В поле должен быть указан действительный адрес электронной почты.',
+  'email' => 'В поле :attribute должен быть указан действительный адрес электронной почты.',
   'ends_with' => ':attribute должно заканчиваться одним из следующих символов: :values.',
   'enum' => 'Выбранный :attribute некорректный.',
   'exists' => 'Выбранный :attribute некорректный.',
@@ -81,7 +81,7 @@ return [
   'lt' => [
     'array' => ':attribute поле должно содержать менее :value предметов.',
     'file' => ':attribute поле должно быть меньше, чем :value килобайт.',
-    'numeric' => ':attributeполе должно быть меньше, чем :value.',
+    'numeric' => 'Поле :attribute должно быть меньше :value.',
     'string' => ':attribute поле должно быть меньше, чем :value.',
   ],
   'lte' => [
@@ -101,10 +101,10 @@ return [
   'mimes' => ':attribute поле должно быть файлом типа: :values.',
   'mimetypes' => ':attribute поле должно быть файлом типа: :values.',
   'min' => [
-    'array' => ':attribute поле должно иметь по крайней мере :min предметов.',
-    'file' => ':attribute поле должно быть не менее :min килобайт.',
-    'numeric' => ':attribute поле должно быть не менее :min.',
-    'string' => ':attribute поле должно быть не менее :min.',
+    'array' => 'Количество элементов в поле :attribute должно быть не менее :min.',
+    'file' => 'Размер файла в поле :attribute должен быть не менее :min килобайт.',
+    'numeric' => 'Поле :attribute должно быть не менее :min.',
+    'string' => 'Количество символов в поле :attribute должно быть не менее :min.',
   ],
   'min_digits' => ':attribute поле должно иметь по крайней мере :min digits.',
   'missing' => ':attribute поле отсутствует.',
@@ -133,7 +133,7 @@ return [
   'prohibited_unless' => ':attribute поле запрещено, если только :other в :values.',
   'prohibits' => ':attribute поле запрещает :other от присутствия.',
   'regex' => ':attribute неверный формат поля.',
-  'required' => ':attribute поле обязательно для заполнения.',
+  'required' => 'Поле :attribute обязательно для заполнения.',
   'required_array_keys' => ':attribute поле должно содержать записи для: :values.',
   'required_if' => ':attribute поле является обязательным, когда :other это :value.',
   'required_if_accepted' => ':attribute поле является обязательным, когда :other это accepted.',
@@ -188,6 +188,8 @@ return [
   */
 
   'attributes' => [
+    'email' => 'Электронная почта',
+    'name' => 'Имя',
     'password' => 'Пароль',
     'password_confirmation' => 'Подтверждение пароля',
   ],
