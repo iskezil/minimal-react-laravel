@@ -19,6 +19,7 @@ import { Label } from 'src/components/label';
 import Typography from '@mui/material/Typography';
 import { fData } from 'src/utils/format-number';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import { useBoolean } from 'minimal-shared/hooks/index';
 
 type Role = { id: number; name: string };
 
@@ -36,6 +37,7 @@ type Props = { roles: Role[]; currentUser?: User };
 
 export function EditUserForm({ roles, currentUser }: Props) {
   const { __ } = useLang();
+  const showPassword = useBoolean();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
 
