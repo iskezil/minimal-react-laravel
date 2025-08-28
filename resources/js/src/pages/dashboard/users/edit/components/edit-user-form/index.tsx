@@ -15,7 +15,7 @@ import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
-import { Label } from '@/components/label';
+import { Label, LabelColor } from '@/components/label';
 import Box from '@mui/material/Box';
 import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import { useAuthz } from 'src/lib/authz';
@@ -62,7 +62,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
     name: z.string().min(1, { message: __('validation.required') }),
     email: z.string().email({ message: __('validation.email') }),
     roles: z.array(z.string()).min(1, { message: __('validation.required') }),
-    avatar: z.any().optional(),
+    avatar: z.union([z.instanceof(File), z.string(), z.null()]).nullable(),
     banned: z.boolean(),
     email_verified: z.boolean(),
   });
@@ -93,13 +93,15 @@ export function EditUserForm({ roles, currentUser }: Props) {
   }));
 
   const watchBanned = watch('banned');
-  const currentStatus = watchBanned
+  const currentStatus: 'active' | 'pending' | 'banned' = watchBanned
     ? 'banned'
     : currentUser.status === 'pending'
       ? 'pending'
       : 'active';
 
-  const statusColor = { active: 'success', pending: 'warning', banned: 'error' }[currentStatus];
+  const statusColor: LabelColor = (
+    { active: 'success', pending: 'warning', banned: 'error' } as const
+  )[currentStatus];
 
   const onSubmit = handleSubmit((data) => {
     const payload = new FormData();
@@ -107,7 +109,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
     payload.append('_method', 'PATCH');
     payload.append('name', data.name);
     payload.append('email', data.email);
-    data.roles.forEach((r) => payload.append('roles[]', r));
+    data.roles.forEach((role: string) => payload.append('roles[]', role));
     const status = data.banned ? 'banned' : currentUser.status === 'pending' ? 'pending' : 'active';
     payload.append('status', status);
     payload.append('email_verified_at', data.email_verified ? new Date().toISOString() : '');
