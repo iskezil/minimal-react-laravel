@@ -62,16 +62,6 @@ export function useNavData(): NavSectionProps['data'] {
             icon: ICONS.dashboard,
             info: <Label>v{CONFIG.appVersion}</Label>,
           },
-          {
-            title: __('navigation.overview.test'),
-            path: paths.dashboard.two,
-            icon: ICONS.ecommerce,
-          },
-          {
-            title: __('navigation.overview.three'),
-            path: paths.dashboard.three,
-            icon: ICONS.analytics,
-          },
         ],
       },
       {
@@ -98,13 +88,6 @@ export function useNavData(): NavSectionProps['data'] {
               },
             ],
           },
-        ],
-      },
-      {
-        subheader: __('navigation.auth.subheader'),
-        items: [
-          { title: __('navigation.auth.sign_in'), path: '/sign-in' },
-          { title: __('navigation.auth.sign_up'), path: '/sign-up' },
         ],
       },
     ],
