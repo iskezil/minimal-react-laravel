@@ -46,6 +46,10 @@ return [
     'edit_user' => 'Edit user',
     'create_success' => 'User created',
     'update_success' => 'User updated',
+    'edit_tabs' => [
+        'general' => 'General',
+        'security' => 'Security',
+    ],
       'form' => [
           'name' => 'Full name',
           'email' => 'Email address',
@@ -55,5 +59,10 @@ return [
           'status' => 'Active',
           'submit_create' => 'Create user',
           'submit_update' => 'Save changes',
+          'avatar_helper' => "Allowed *.jpeg, *.jpg, *.png, *.gif\nmax size of 3 Mb",
+          'banned' => 'Banned',
+          'banned_caption' => 'Apply disable account',
+          'email_verified' => 'Email verified',
+          'email_verified_caption' => 'Disabling this will automatically send the user a verification email',
       ],
   ];
