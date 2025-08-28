@@ -1,9 +1,8 @@
-import type { Theme, CSSObject } from '@mui/material/styles';
+import type { CSSObject, Theme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 
 import { Toaster } from 'sonner';
 import { varAlpha } from 'minimal-shared/utils';
-
-import { styled } from '@mui/material/styles';
 
 import { snackbarClasses } from './classes';
 
@@ -122,7 +121,7 @@ const toastStyles = (theme: Theme): CSSObject => ({
     alignItems: 'center',
     padding: theme.spacing(0.5, 1, 0.5, 0.5),
     boxShadow: theme.vars.customShadows.z8,
-    backgroundColor: theme.vars.palette.background.paper,
+    // backgroundColor: theme.vars.palette.background.paper,
     [`&:has(${snackbarClasses.closeBtnVisible})`]: {
       [`& .${snackbarClasses.content}`]: { paddingRight: 24 },
     },

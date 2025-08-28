@@ -11,9 +11,10 @@ export function Snackbar() {
     <Portal>
       <SnackbarRoot
         expand
-        closeButton
+        richColors
         gap={12}
         offset={16}
+        duration={4000}
         visibleToasts={4}
         position="top-right"
         className={snackbarClasses.root}
