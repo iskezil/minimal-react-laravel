@@ -46,12 +46,14 @@ return [
     'edit_user' => 'Редактировать пользователя',
     'create_success' => 'Пользователь создан',
     'update_success' => 'Пользователь обновлен',
-    'form' => [
-        'name' => 'Полное имя',
-        'email' => 'Email',
-        'password' => 'Пароль',
-        'roles' => 'Роли',
-        'submit_create' => 'Создать пользователя',
-        'submit_update' => 'Сохранить изменения',
-    ],
-];
+      'form' => [
+          'name' => 'Полное имя',
+          'email' => 'Email',
+          'password' => 'Пароль',
+          'roles' => 'Роли',
+          'avatar' => 'Аватар',
+          'status' => 'Активен',
+          'submit_create' => 'Создать пользователя',
+          'submit_update' => 'Сохранить изменения',
+      ],
+  ];

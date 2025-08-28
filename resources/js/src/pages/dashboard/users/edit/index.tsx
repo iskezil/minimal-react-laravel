@@ -10,7 +10,7 @@ import { UserForm } from 'src/pages/dashboard/users/components/user-form';
 
 type Role = { id: number; name: string };
 
-type User = { id: number; name: string; email: string; roles: number[] };
+type User = { id: number; name: string; email: string; roles: number[]; status: string };
 
 interface Props {
   user: User;
