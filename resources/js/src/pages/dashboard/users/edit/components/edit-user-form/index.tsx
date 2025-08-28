@@ -148,7 +148,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
       <Form methods={methods} onSubmit={onSubmit}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ p: 3, position: 'relative' }}>
+            <Card sx={{ pt: 10, pb: 5, px: 3 }}>
               <Label color={statusColor} sx={{ position: 'absolute', top: 24, right: 24 }}>
                 {__(`pages/users.tabs.${currentStatus}`)}
               </Label>
@@ -175,6 +175,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
                     }
                   />
                 </Box>
+
                 <Field.Switch
                   name="banned"
                   label={__('pages/users.form.banned')}
@@ -221,7 +222,12 @@ export function EditUserForm({ roles, currentUser }: Props) {
                   checkbox
                 />
 
-                <Button type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  loading={isSubmitting}
+                  sx={{ ml: 'auto' }}
+                >
                   {__('pages/users.form.submit_update')}
                 </Button>
               </Stack>
