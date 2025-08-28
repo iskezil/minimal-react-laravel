@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
-import { IconButton, InputAdornment, Typography } from '@mui/material';
+import { Box, IconButton, InputAdornment, Typography } from '@mui/material';
 
 import { Field, Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
@@ -16,6 +16,7 @@ import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { useBoolean } from 'minimal-shared/hooks';
+import { Iconify } from '@/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -118,20 +119,28 @@ export function CreateUserForm({ roles }: Props) {
         <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ p: 3 }}>
             <Stack spacing={3} alignItems="center">
-              <Field.UploadAvatar
-                name="avatar"
-                accept={{ 'image/jpeg': [], 'image/png': [], 'image/gif': [] }}
-                maxSize={3145728}
-                helperText={
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ textAlign: 'center', whiteSpace: 'pre-line' }}
-                  >
-                    {__('pages/users.form.avatar_helper')}
-                  </Typography>
-                }
-              />
+              <Box sx={{ mb: 5 }}>
+                <Field.UploadAvatar
+                  name="avatar"
+                  accept={{ 'image/jpeg': [], 'image/png': [], 'image/gif': [] }}
+                  maxSize={3145728}
+                  helperText={
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        mt: 3,
+                        mx: 'auto',
+                        display: 'block',
+                        textAlign: 'center',
+                        color: 'text.disabled',
+                      }}
+                    >
+                      {__('pages/users.form.avatar_helper')}
+                    </Typography>
+                  }
+                />
+              </Box>
               <Field.Switch
                 name="email_verified"
                 label={__('pages/users.form.email_verified')}
@@ -160,9 +169,9 @@ export function CreateUserForm({ roles }: Props) {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton onClick={showPassword.onToggle} edge="end">
-                          <span className="material-icons">
-                            {showPassword.value ? 'visibility' : 'visibility_off'}
-                          </span>
+                          <Iconify
+                            icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                          />
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -179,9 +188,9 @@ export function CreateUserForm({ roles }: Props) {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton onClick={showPassword.onToggle} edge="end">
-                          <span className="material-icons">
-                            {showPassword.value ? 'visibility' : 'visibility_off'}
-                          </span>
+                          <Iconify
+                            icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                          />
                         </IconButton>
                       </InputAdornment>
                     ),

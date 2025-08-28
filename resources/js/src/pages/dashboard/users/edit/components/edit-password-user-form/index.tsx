@@ -14,6 +14,7 @@ import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { useBoolean } from 'minimal-shared/hooks';
+import { Iconify } from '@/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -90,9 +91,9 @@ export function EditPasswordUserForm({ currentUser }: Props) {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton onClick={showPassword.onToggle} edge="end">
-                      <span className="material-icons">
-                        {showPassword.value ? 'visibility' : 'visibility_off'}
-                      </span>
+                      <Iconify
+                        icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                      />
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -109,9 +110,9 @@ export function EditPasswordUserForm({ currentUser }: Props) {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton onClick={showPassword.onToggle} edge="end">
-                      <span className="material-icons">
-                        {showPassword.value ? 'visibility' : 'visibility_off'}
-                      </span>
+                      <Iconify
+                        icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                      />
                     </IconButton>
                   </InputAdornment>
                 ),

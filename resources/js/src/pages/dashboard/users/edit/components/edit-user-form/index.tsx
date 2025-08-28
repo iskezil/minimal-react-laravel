@@ -15,6 +15,7 @@ import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Label } from '@/components/label';
+import Box from '@mui/material/Box';
 
 // ----------------------------------------------------------------------
 
@@ -90,6 +91,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
     : currentUser.status === 'pending'
       ? 'pending'
       : 'active';
+
   const statusColor = { active: 'success', pending: 'warning', banned: 'error' }[currentStatus];
 
   const onSubmit = handleSubmit((data) => {
@@ -99,11 +101,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
     payload.append('name', data.name);
     payload.append('email', data.email);
     data.roles.forEach((r) => payload.append('roles[]', r));
-    const status = data.banned
-      ? 'banned'
-      : currentUser.status === 'pending'
-        ? 'pending'
-        : 'active';
+    const status = data.banned ? 'banned' : currentUser.status === 'pending' ? 'pending' : 'active';
     payload.append('status', status);
     payload.append('email_verified_at', data.email_verified ? new Date().toISOString() : '');
     if (data.avatar instanceof File) {
@@ -138,24 +136,32 @@ export function EditUserForm({ roles, currentUser }: Props) {
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ p: 3, position: 'relative' }}>
-            <Label color={statusColor} sx={{ position: 'absolute', top: 16, right: 16 }}>
+            <Label color={statusColor} sx={{ position: 'absolute', top: 24, right: 24 }}>
               {__(`pages/users.tabs.${currentStatus}`)}
             </Label>
             <Stack spacing={3} alignItems="center">
-              <Field.UploadAvatar
-                name="avatar"
-                accept={{ 'image/jpeg': [], 'image/png': [], 'image/gif': [] }}
-                maxSize={3145728}
-                helperText={
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ textAlign: 'center', whiteSpace: 'pre-line' }}
-                  >
-                    {__('pages/users.form.avatar_helper')}
-                  </Typography>
-                }
-              />
+              <Box sx={{ mb: 5 }}>
+                <Field.UploadAvatar
+                  name="avatar"
+                  accept={{ 'image/jpeg': [], 'image/png': [], 'image/gif': [] }}
+                  maxSize={3145728}
+                  helperText={
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        mt: 3,
+                        mx: 'auto',
+                        display: 'block',
+                        textAlign: 'center',
+                        color: 'text.disabled',
+                      }}
+                    >
+                      {__('pages/users.form.avatar_helper')}
+                    </Typography>
+                  }
+                />
+              </Box>
               <Field.Switch
                 name="banned"
                 label={__('pages/users.form.banned')}
@@ -174,7 +180,12 @@ export function EditUserForm({ roles, currentUser }: Props) {
                   helperText: { sx: { textAlign: 'left' } },
                 }}
               />
-              <Button color="error" variant="soft" sx={{ mt: 1, alignSelf: 'stretch' }} onClick={handleDelete}>
+              <Button
+                color="error"
+                variant="soft"
+                sx={{ mt: 1, alignSelf: 'stretch' }}
+                onClick={handleDelete}
+              >
                 {__('pages/users.delete_user')}
               </Button>
             </Stack>
