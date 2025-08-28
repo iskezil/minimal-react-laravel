@@ -46,6 +46,10 @@ return [
     'edit_user' => 'Редактировать пользователя',
     'create_success' => 'Пользователь создан',
     'update_success' => 'Пользователь обновлен',
+    'edit_tabs' => [
+        'general' => 'Основное',
+        'security' => 'Безопасность',
+    ],
       'form' => [
           'name' => 'Полное имя',
           'email' => 'Email',
@@ -55,5 +59,10 @@ return [
           'status' => 'Активен',
           'submit_create' => 'Создать пользователя',
           'submit_update' => 'Сохранить изменения',
+          'avatar_helper' => "Allowed *.jpeg, *.jpg, *.png, *.gif\nmax size of 3 Mb",
+          'banned' => 'Banned',
+          'banned_caption' => 'Apply disable account',
+          'email_verified' => 'Email verified',
+          'email_verified_caption' => 'Disabling this will automatically send the user a verification email',
       ],
   ];
