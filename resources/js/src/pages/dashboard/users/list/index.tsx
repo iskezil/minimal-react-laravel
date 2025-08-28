@@ -478,7 +478,12 @@ export default function List({ users, roles }: Props) {
                               <Iconify icon="solar:eye-bold" />
                             </IconButton>
                             {canEdit && (
-                              <IconButton size="small" color="primary">
+                              <IconButton
+                                component={RouterLink}
+                                href={paths.userEdit(user.id)}
+                                size="small"
+                                color="primary"
+                              >
                                 <Iconify icon="solar:pen-bold" />
                               </IconButton>
                             )}

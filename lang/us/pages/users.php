@@ -46,12 +46,14 @@ return [
     'edit_user' => 'Edit user',
     'create_success' => 'User created',
     'update_success' => 'User updated',
-    'form' => [
-        'name' => 'Full name',
-        'email' => 'Email address',
-        'password' => 'Password',
-        'roles' => 'Roles',
-        'submit_create' => 'Create user',
-        'submit_update' => 'Save changes',
-    ],
-];
+      'form' => [
+          'name' => 'Full name',
+          'email' => 'Email address',
+          'password' => 'Password',
+          'roles' => 'Roles',
+          'avatar' => 'Upload photo',
+          'status' => 'Active',
+          'submit_create' => 'Create user',
+          'submit_update' => 'Save changes',
+      ],
+  ];
