@@ -69,6 +69,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(Schema),
+    mode: 'onChange',
     defaultValues: {
       name: currentUser.name,
       email: currentUser.email,
@@ -117,7 +118,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
     router.post(route('users.update', currentUser.id), payload, {
       onSuccess: () => {
         toast.success(__('pages/users.update_success'));
-        router.visit(paths.users);
+        router.reload();
       },
       onError: (errors) => {
         Object.entries(errors).forEach(([field, message]) => {
@@ -134,6 +135,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
       onSuccess: () => {
         toast.success(__('pages/users.delete_success'));
         setOpenDelete(false);
+        router.visit(paths.users);
       },
       onError: () => {
         toast.error(__('pages/users.delete_error'));

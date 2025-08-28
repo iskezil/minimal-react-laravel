@@ -63,6 +63,7 @@ export function CreateUserForm({ roles }: Props) {
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(Schema),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       email: '',
@@ -109,6 +110,7 @@ export function CreateUserForm({ roles }: Props) {
         Object.entries(errors).forEach(([field, message]) => {
           setError(field as keyof FormValues, { type: 'server', message: message as string });
         });
+        toast.error(__('pages/users.create_error'));
       },
     });
   });

@@ -46,6 +46,7 @@ return [
     'create_user' => 'Создать пользователя',
     'edit_user' => 'Редактировать пользователя',
     'create_success' => 'Пользователь создан',
+    'create_error' => 'Не удалось создать пользователя',
     'update_success' => 'Пользователь обновлен',
     'update_error' => 'Не удалось обновить пользователя',
     'edit_tabs' => [
@@ -56,6 +57,7 @@ return [
           'name' => 'Полное имя',
           'email' => 'Email',
           'password' => 'Пароль',
+          'current_password' => 'Текущий пароль',
           'roles' => 'Роли',
           'avatar' => 'Аватар',
           'status' => 'Активен',
