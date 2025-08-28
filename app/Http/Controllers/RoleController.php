@@ -44,7 +44,7 @@ class RoleController extends Controller
                 'name' => $p->name,
             ]);
 
-        return Inertia::render('dashboard/roles', [
+        return Inertia::render('dashboard/roles/list', [
             'roles' => $roles,
             'permissions' => $permissions,
         ]);

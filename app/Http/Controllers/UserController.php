@@ -37,7 +37,7 @@ class UserController extends Controller
 
         $roles = Role::select('id', 'name')->get();
 
-            return Inertia::render('dashboard/users', [
+            return Inertia::render('dashboard/users/list', [
             'users' => $users,
             'roles' => $roles,
         ]);

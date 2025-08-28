@@ -50,7 +50,7 @@ type Props = { permissions: Permission[]; roles: Role[] };
 
 const metadata = { title: `Permissions | Dashboard - ${CONFIG.appName}` };
 
-export default function Index({ permissions, roles }: Props) {
+export default function List({ permissions, roles }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
