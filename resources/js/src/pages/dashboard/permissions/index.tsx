@@ -10,6 +10,8 @@ import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { PERMISSION_MODULE_NAMES, PERMISSION_NAMES, ROLE_NAMES } from 'src/enums/rights';
+import { useAuthz } from 'src/lib/authz';
+import { Can } from 'src/components/Can';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -52,6 +54,9 @@ export default function Index({ permissions, roles }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
+  const { can } = useAuthz();
+  const canEdit = can('PERMISSIONS_EDIT');
+  const canDelete = can('PERMISSIONS_DELETE');
 
   const [permissionList, setPermissionList] = useState<Permission[]>(permissions);
   const [search, setSearch] = useState('');
@@ -174,13 +179,15 @@ export default function Index({ permissions, roles }: Props) {
               { name: __('pages/permissions.breadcrumbs.permissions') },
             ]}
             action={
-              <Button
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-                onClick={() => setOpenAdd(true)}
-              >
-                {__('pages/permissions.add_permission')}
-              </Button>
+              <Can permission="PERMISSIONS_CREATE">
+                <Button
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                  onClick={() => setOpenAdd(true)}
+                >
+                  {__('pages/permissions.add_permission')}
+                </Button>
+              </Can>
             }
             sx={{ mb: { xs: 3, md: 5 } }}
           />
@@ -270,14 +277,17 @@ export default function Index({ permissions, roles }: Props) {
                                   <Checkbox
                                     checked={checked}
                                     onChange={() => handleToggleRole(permission, role.id, checked)}
+                                    disabled={!canEdit}
                                   />
                                 </TableCell>
                               );
                             })}
                             <TableCell align="center">
-                              <IconButton color="error" onClick={() => setDeleteId(permission.id)}>
-                                <Iconify icon="solar:trash-bin-trash-bold" />
-                              </IconButton>
+                              {canDelete && (
+                                <IconButton color="error" onClick={() => setDeleteId(permission.id)}>
+                                  <Iconify icon="solar:trash-bin-trash-bold" />
+                                </IconButton>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -298,43 +308,45 @@ export default function Index({ permissions, roles }: Props) {
         </DashboardContent>
       </DashboardLayout>
 
-      <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="xs">
-        <DialogTitle>{__('pages/permissions.add_permission')}</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField
-              autoFocus
-              margin="dense"
-              fullWidth
-              variant="filled"
-              label={__('pages/permissions.table.name')}
-              value={newPermission}
-              onChange={(e) => setNewPermission(e.target.value)}
-            />
-            <TextField
-              select
-              margin="dense"
-              fullWidth
-              variant="filled"
-              label={__('pages/permissions.module')}
-              value={newModule}
-              onChange={(e) => setNewModule(e.target.value as keyof typeof PERMISSION_MODULE_NAMES)}
-            >
-              {moduleKeys.map((key) => (
-                <MenuItem key={key} value={key}>
-                  {__(PERMISSION_MODULE_NAMES[key])}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAdd(false)}>{__('pages/permissions.cancel')}</Button>
-          <Button variant="contained" onClick={handleCreate} disabled={!newPermission}>
-            {__('pages/permissions.add_permission')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Can permission="PERMISSIONS_CREATE">
+        <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="xs">
+          <DialogTitle>{__('pages/permissions.add_permission')}</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              <TextField
+                autoFocus
+                margin="dense"
+                fullWidth
+                variant="filled"
+                label={__('pages/permissions.table.name')}
+                value={newPermission}
+                onChange={(e) => setNewPermission(e.target.value)}
+              />
+              <TextField
+                select
+                margin="dense"
+                fullWidth
+                variant="filled"
+                label={__('pages/permissions.module')}
+                value={newModule}
+                onChange={(e) => setNewModule(e.target.value as keyof typeof PERMISSION_MODULE_NAMES)}
+              >
+                {moduleKeys.map((key) => (
+                  <MenuItem key={key} value={key}>
+                    {__(PERMISSION_MODULE_NAMES[key])}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenAdd(false)}>{__('pages/permissions.cancel')}</Button>
+            <Button variant="contained" onClick={handleCreate} disabled={!newPermission}>
+              {__('pages/permissions.add_permission')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Can>
 
       <ConfirmDialog
         open={deleteId !== null}
