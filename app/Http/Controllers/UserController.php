@@ -98,7 +98,7 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+                'avatar' => $user->avatar ? asset(Storage::url($user->avatar)) : null,
                 'status' => $user->status,
                 'roles' => $user->roles->pluck('id')->toArray(),
                 'email_verified_at' => $user->email_verified_at,

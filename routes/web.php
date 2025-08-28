@@ -31,6 +31,9 @@ Route::middleware('auth')->group(function () {
   Route::get('/users/{user}/edit', [UserController::class, 'edit'])
     ->middleware('permission:USERS_EDIT')
     ->name('users.edit');
+  Route::get('/users/{user}/edit/change-password', [UserController::class, 'edit'])
+    ->middleware('permission:USERS_EDIT')
+    ->name('users.edit.password');
   Route::patch('/users/{user}', [UserController::class, 'update'])
     ->middleware('permission:USERS_EDIT')
     ->name('users.update');

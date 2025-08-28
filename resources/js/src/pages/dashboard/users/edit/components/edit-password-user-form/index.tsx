@@ -61,7 +61,7 @@ export function EditPasswordUserForm({ currentUser }: Props) {
   const onSubmit = handleSubmit((data) => {
     const payload = new FormData();
     payload.append('_token', csrfToken);
-    payload.append('_method', 'PUT');
+    payload.append('_method', 'PATCH');
     payload.append('password', data.password);
     payload.append('password_confirmation', data.password_confirmation);
 
@@ -74,6 +74,7 @@ export function EditPasswordUserForm({ currentUser }: Props) {
         Object.entries(errors).forEach(([field, message]) => {
           setError(field as keyof FormValues, { type: 'server', message: message as string });
         });
+        toast.error(__('pages/users.update_error'));
       },
     });
   });
