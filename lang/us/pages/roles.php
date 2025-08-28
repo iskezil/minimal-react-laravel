@@ -14,6 +14,7 @@ return [
     ],
     'search' => 'Search...',
     'add_role' => 'Add role',
+    'add_role_placeholder' => 'Role code',
     'no_data' => 'No roles found',
     'delete_role' => 'Delete role',
     'delete_confirm' => 'Are you sure you want to delete this role?',

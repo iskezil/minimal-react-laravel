@@ -25,10 +25,24 @@ return [
     'no_roles' => 'No roles',
     'save' => 'Save',
     'names' => [
-        'manage_users' => 'Manage users',
-        'manage_roles' => 'Manage roles',
+        'users_view' => 'Users — view',
+        'users_create' => 'Users — create',
+        'users_edit' => 'Users — edit',
+        'users_delete' => 'Users — delete',
+
+        'roles_view' => 'Roles — view',
+        'roles_create' => 'Roles — create',
+        'roles_edit' => 'Roles — edit',
+        'roles_delete' => 'Roles — delete',
+
+        'permissions_view' => 'Permissions — view',
+        'permissions_create' => 'Permissions — create',
+        'permissions_edit' => 'Permissions — edit',
+        'permissions_delete' => 'Permissions — delete',
     ],
     'modules' => [
-        'users' => 'Users'
+        'users' => 'Users',
+        'roles' => 'Roles',
+        'permissions' => 'Permissions',
     ],
 ];

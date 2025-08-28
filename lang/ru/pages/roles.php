@@ -14,6 +14,7 @@ return [
     ],
     'search' => 'Поиск...',
     'add_role' => 'Добавить роль',
+    'add_role_placeholder' => 'Код роли',
     'no_data' => 'Роли не найдены',
     'delete_role' => 'Удалить роль',
     'delete_confirm' => 'Вы уверены, что хотите удалить эту роль?',

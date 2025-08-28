@@ -233,6 +233,8 @@ export default function Index({ roles, permissions }: Props) {
           <TextField
             autoFocus
             margin="dense"
+            label={__('pages/roles.add_role_placeholder')}
+            size="small"
             fullWidth
             variant="filled"
             value={newRole}

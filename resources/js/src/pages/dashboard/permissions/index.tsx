@@ -9,11 +9,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
-import {
-  PERMISSION_NAMES,
-  ROLE_NAMES,
-  PERMISSION_MODULE_NAMES,
-} from 'src/enums/rights';
+import { PERMISSION_MODULE_NAMES, PERMISSION_NAMES, ROLE_NAMES } from 'src/enums/rights';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -60,14 +56,11 @@ export default function Index({ permissions, roles }: Props) {
   const [permissionList, setPermissionList] = useState<Permission[]>(permissions);
   const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
-  const moduleKeys =
-    Object.keys(PERMISSION_MODULE_NAMES) as Array<
-      keyof typeof PERMISSION_MODULE_NAMES
-    >;
-  const [newPermission, setNewPermission] = useState('');
-  const [newModule, setNewModule] = useState<
+  const moduleKeys = Object.keys(PERMISSION_MODULE_NAMES) as Array<
     keyof typeof PERMISSION_MODULE_NAMES
-  >(moduleKeys[0]);
+  >;
+  const [newPermission, setNewPermission] = useState('');
+  const [newModule, setNewModule] = useState<keyof typeof PERMISSION_MODULE_NAMES>(moduleKeys[0]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -248,9 +241,7 @@ export default function Index({ permissions, roles }: Props) {
                                   : 'eva:arrow-ios-forward-fill'
                               }
                             />
-                            {PERMISSION_MODULE_NAMES[
-                              module as keyof typeof PERMISSION_MODULE_NAMES
-                            ]
+                            {PERMISSION_MODULE_NAMES[module as keyof typeof PERMISSION_MODULE_NAMES]
                               ? __(
                                   PERMISSION_MODULE_NAMES[
                                     module as keyof typeof PERMISSION_MODULE_NAMES
@@ -261,26 +252,30 @@ export default function Index({ permissions, roles }: Props) {
                         </TableCell>
                       </TableRow>
                       {openModules[module] &&
-                        perms.map((p) => (
-                          <TableRow key={p.id} hover>
+                        perms.map((permission) => (
+                          <TableRow key={permission.id} hover>
                             <TableCell>
-                              {PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES]
-                                ? __(PERMISSION_NAMES[p.name as keyof typeof PERMISSION_NAMES])
-                                : p.name}
+                              {PERMISSION_NAMES[permission.name as keyof typeof PERMISSION_NAMES]
+                                ? __(
+                                    PERMISSION_NAMES[
+                                      permission.name as keyof typeof PERMISSION_NAMES
+                                    ]
+                                  )
+                                : permission.name}
                             </TableCell>
-                            {roles.map((r) => {
-                              const checked = p.roles.some((pr) => pr.id === r.id);
+                            {roles.map((role) => {
+                              const checked = permission.roles.some((pr) => pr.id === role.id);
                               return (
-                                <TableCell key={r.id} align="center">
+                                <TableCell key={role.id} align="center">
                                   <Checkbox
                                     checked={checked}
-                                    onChange={() => handleToggleRole(p, r.id, checked)}
+                                    onChange={() => handleToggleRole(permission, role.id, checked)}
                                   />
                                 </TableCell>
                               );
                             })}
                             <TableCell align="center">
-                              <IconButton color="error" onClick={() => setDeleteId(p.id)}>
+                              <IconButton color="error" onClick={() => setDeleteId(permission.id)}>
                                 <Iconify icon="solar:trash-bin-trash-bold" />
                               </IconButton>
                             </TableCell>
@@ -323,11 +318,7 @@ export default function Index({ permissions, roles }: Props) {
               variant="filled"
               label={__('pages/permissions.module')}
               value={newModule}
-              onChange={(e) =>
-                setNewModule(
-                  e.target.value as keyof typeof PERMISSION_MODULE_NAMES
-                )
-              }
+              onChange={(e) => setNewModule(e.target.value as keyof typeof PERMISSION_MODULE_NAMES)}
             >
               {moduleKeys.map((key) => (
                 <MenuItem key={key} value={key}>
@@ -339,11 +330,7 @@ export default function Index({ permissions, roles }: Props) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)}>{__('pages/permissions.cancel')}</Button>
-          <Button
-            variant="contained"
-            onClick={handleCreate}
-            disabled={!newPermission}
-          >
+          <Button variant="contained" onClick={handleCreate} disabled={!newPermission}>
             {__('pages/permissions.add_permission')}
           </Button>
         </DialogActions>
