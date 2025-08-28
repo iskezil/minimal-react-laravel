@@ -24,7 +24,7 @@ class UserController extends Controller
 
     public function index(): Response
     {
-        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/users']);
+        syncLangFiles(['auth', 'navbar', 'navigation', 'validation', 'pages/users']);
         $users = User::with('roles:id,name')
             ->select('id', 'name', 'email', 'status', 'created_at')
             ->get()
@@ -47,7 +47,7 @@ class UserController extends Controller
 
     public function create(): Response
     {
-        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/users']);
+        syncLangFiles(['auth', 'navbar', 'navigation', 'validation', 'pages/users']);
 
         $roles = Role::select('id', 'name')->get();
 
@@ -91,7 +91,7 @@ class UserController extends Controller
 
     public function edit(User $user): Response
     {
-        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/users']);
+        syncLangFiles(['auth', 'navbar', 'navigation', 'validation', 'pages/users']);
 
         $user->load('roles:id,name');
 
@@ -180,6 +180,7 @@ class UserController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         $user->delete();
-        return back();
+
+        return redirect()->route('users.index');
     }
 }

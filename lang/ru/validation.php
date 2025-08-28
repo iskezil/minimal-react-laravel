@@ -187,6 +187,9 @@ return [
   |
   */
 
-  'attributes' => [],
+  'attributes' => [
+    'password' => 'Пароль',
+    'password_confirmation' => 'Подтверждение пароля',
+  ],
 
 ];

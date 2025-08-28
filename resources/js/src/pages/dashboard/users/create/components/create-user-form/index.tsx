@@ -49,7 +49,12 @@ export function CreateUserForm({ roles }: Props) {
     .object({
       name: z.string().min(1, { message: __('validation.required') }),
       email: z.string().email({ message: __('validation.email') }),
-      password: z.string().min(6, { message: __('validation.min.string', { min: 6 }) }),
+      password: z.string().min(6, {
+        message: __('validation.min.string', {
+          attribute: __('validation.attributes.password'),
+          min: 6,
+        }),
+      }),
       password_confirmation: z.string().min(1, { message: __('validation.required') }),
       roles: z.array(z.string()).min(1, { message: __('validation.required') }),
       avatar: z.any().optional(),
