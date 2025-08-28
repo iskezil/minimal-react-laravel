@@ -3,6 +3,9 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
+use Inertia\Inertia;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -26,5 +29,40 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $e)
+    {
+        // Если клиент просит JSON — отдаем стандартный JSON от Laravel
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return parent::render($request, $e);
+        }
+
+        // 419 (CSRF/session) как отдельный кейс
+        if ($e instanceof TokenMismatchException) {
+            return Inertia::render('errors/419')
+                ->toResponse($request)
+                ->setStatusCode(419);
+        }
+
+        // HTTP-исключения: 403, 404, 429, 503 и т.п.
+        if ($e instanceof HttpExceptionInterface) {
+            $status = $e->getStatusCode();
+
+            $pageMap = [
+                403 => 'errors/403',
+                404 => 'errors/404',
+                500 => 'errors/500',
+            ];
+
+            return Inertia::render($pageMap[$status] ?? 'errors/500')
+                ->toResponse($request)
+                ->setStatusCode($status);
+        }
+
+        // Любая иная непойманная ошибка -> 500 как HTML
+        return Inertia::render('errors/500')
+            ->toResponse($request)
+            ->setStatusCode(500);
     }
 }
