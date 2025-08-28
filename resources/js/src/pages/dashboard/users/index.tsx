@@ -224,7 +224,7 @@ export default function Index({ users, roles }: Props) {
               <Can permission="USERS_CREATE">
                 <Button
                   component={RouterLink}
-                  href={paths.dashboard.root}
+                  href={paths.userCreate}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >

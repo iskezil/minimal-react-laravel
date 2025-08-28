@@ -15,7 +15,8 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware('permission:USERS_VIEW')->only('index');
-        $this->middleware('permission:USERS_EDIT')->only('update');
+        $this->middleware('permission:USERS_CREATE')->only(['create', 'store']);
+        $this->middleware('permission:USERS_EDIT')->only(['edit', 'update']);
         $this->middleware('permission:USERS_DELETE')->only('destroy');
     }
 
@@ -39,6 +40,58 @@ class UserController extends Controller
             return Inertia::render('dashboard/users', [
             'users' => $users,
             'roles' => $roles,
+        ]);
+    }
+
+    public function create(): Response
+    {
+        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/users']);
+
+        $roles = Role::select('id', 'name')->get();
+
+        return Inertia::render('dashboard/users/create', [
+            'roles' => $roles,
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+        ]);
+
+        if (isset($validated['roles'])) {
+            $roleNames = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
+            $user->syncRoles($roleNames);
+        }
+
+        return redirect()->route('users.index');
+    }
+
+    public function edit(User $user): Response
+    {
+        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/users']);
+
+        $user->load('roles:id,name');
+
+        return Inertia::render('dashboard/users/edit', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->roles->pluck('id')->toArray(),
+            ],
+            'roles' => Role::select('id', 'name')->get(),
         ]);
     }
 
