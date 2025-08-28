@@ -3,17 +3,19 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
 
 import { Field, Form } from 'src/components/hook-form';
-import { paths } from 'src/routes/paths';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
+import { paths } from 'src/routes/paths';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
-import { Iconify } from '@/components/iconify';
-import { IconButton, InputAdornment } from '@mui/material';
+
+// ----------------------------------------------------------------------
 
 type Role = { id: number; name: string };
 
@@ -21,161 +23,136 @@ type User = {
   id: number;
   name: string;
   email: string;
+  avatar: string | null;
+  status: 'active' | 'pending' | 'banned';
   roles: number[];
-  status: string;
 };
 
 type PageProps = InertiaPageProps & { csrf_token: string };
 
-type Props = { roles: Role[]; currentUser?: User };
+type FormValues = {
+  name: string;
+  email: string;
+  roles: string[];
+  avatar: File | string | null;
+  status: 'active' | 'pending' | 'banned';
+};
+
+interface Props {
+  roles: Role[];
+  currentUser: User;
+}
 
 export function EditUserForm({ roles, currentUser }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
 
-  const UserSchema = z.object({
+  const Schema = z.object({
     name: z.string().min(1, { message: __('validation.required') }),
     email: z.string().email({ message: __('validation.email') }),
-    ...(currentUser
-      ? {}
-      : { password: z.string().min(6, { message: __('validation.min.string', { min: 6 }) }) }),
-    roles: z.array(z.number()).min(1, { message: __('validation.required') }),
+    roles: z.array(z.string()).min(1, { message: __('validation.required') }),
     avatar: z.any().optional(),
-    status: z.enum(['active', 'pending']),
+    status: z.enum(['active', 'pending', 'banned']),
   });
 
-  type FormValues = z.infer<typeof UserSchema>;
-
-  const defaultValues: FormValues = {
-    name: currentUser?.name ?? '',
-    email: currentUser?.email ?? '',
-    ...(currentUser ? {} : { password: '' }),
-    roles: currentUser?.roles ?? [],
-    avatar: null,
-    status: currentUser?.status ?? 'active',
-  } as FormValues;
-
   const methods = useForm<FormValues>({
-    resolver: zodResolver(UserSchema),
-    defaultValues,
+    resolver: zodResolver(Schema),
+    defaultValues: {
+      name: currentUser.name,
+      email: currentUser.email,
+      roles: currentUser.roles.map(String),
+      avatar: currentUser.avatar ?? null,
+      status: currentUser.status,
+    },
   });
 
   const {
     handleSubmit,
+    setError,
     control,
     formState: { isSubmitting },
   } = methods;
 
-  const translateRole = (id: number) => {
-    const role = roles.find((r) => r.id === id);
-    return role ? __(`pages/users.roles.${role.name.toLowerCase()}`) : '';
-  };
+  const roleOptions = roles.map((r) => ({
+    label: __(`pages/users.roles.${r.name.toLowerCase()}`),
+    value: String(r.id),
+  }));
 
   const onSubmit = handleSubmit((data) => {
     const payload = new FormData();
     payload.append('_token', csrfToken);
-    Object.entries(data).forEach(([key, value]) => {
-      if (key === 'roles') {
-        (value as number[]).forEach((v) => payload.append('roles[]', String(v)));
-      } else if (value instanceof File) {
-        payload.append(key, value);
-      } else if (value !== null && value !== undefined) {
-        payload.append(key, String(value));
-      }
-    });
-    const options = {
+    payload.append('_method', 'PUT');
+    payload.append('name', data.name);
+    payload.append('email', data.email);
+    data.roles.forEach((r) => payload.append('roles[]', r));
+    payload.append('status', data.status);
+    if (data.avatar instanceof File) {
+      payload.append('avatar', data.avatar);
+    }
+
+    router.post(route('users.update', currentUser.id), payload, {
       onSuccess: () => {
-        toast.success(
-          currentUser ? __('pages/users.update_success') : __('pages/users.create_success')
-        );
+        toast.success(__('pages/users.update_success'));
         router.visit(paths.users);
       },
-    };
-    if (currentUser) {
-      payload.append('_method', 'PUT');
-      router.post(route('users.update', currentUser.id), payload, options);
-    } else {
-      router.post(route('users.store'), payload, options);
-    }
+      onError: (errors) => {
+        Object.entries(errors).forEach(([field, message]) => {
+          setError(field as keyof FormValues, { type: 'server', message: message as string });
+        });
+      },
+    });
   });
+
+  const handleDelete = () => {
+    router.delete(route('users.destroy', currentUser.id), {
+      data: { _token: csrfToken },
+      onSuccess: () => {
+        toast.success(__('pages/users.delete_success'));
+        router.visit(paths.users);
+      },
+    });
+  };
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
-      <Card
-        sx={{
-          p: 3,
-          gap: 3,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <Field.Text
-          name="oldPassword"
-          type={showPassword.value ? 'text' : 'password'}
-          label="Old password"
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={showPassword.onToggle} edge="end">
-                    <Iconify
-                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
-                    />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card sx={{ p: 3 }}>
+            <Field.UploadAvatar name="avatar" />
+            <Button color="error" variant="soft" sx={{ mt: 3 }} onClick={handleDelete}>
+              {__('pages/users.delete_user')}
+            </Button>
+          </Card>
+        </Grid>
 
-        <Field.Text
-          name="newPassword"
-          label="New password"
-          type={showPassword.value ? 'text' : 'password'}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={showPassword.onToggle} edge="end">
-                    <Iconify
-                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
-                    />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-          helperText={
-            <Box component="span" sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-              <Iconify icon="solar:info-circle-bold" width={16} /> Password must be minimum 6+
-            </Box>
-          }
-        />
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Card sx={{ p: 3 }}>
+            <Stack spacing={3}>
+              <Field.Text name="name" label={__('pages/users.form.name')} />
+              <Field.Text name="email" label={__('pages/users.form.email')} />
 
-        <Field.Text
-          name="confirmNewPassword"
-          type={showPassword.value ? 'text' : 'password'}
-          label="Confirm new password"
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={showPassword.onToggle} edge="end">
-                    <Iconify
-                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
-                    />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+              <Field.MultiSelect
+                name="roles"
+                label={__('pages/users.form.roles')}
+                options={roleOptions}
+                placeholder=""
+                checkbox
+              />
 
-        <Button type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
-          Save changes
-        </Button>
-      </Card>
+              <Field.Select name="status" label={__('pages/users.form.status')}>
+                <MenuItem value="active">{__('pages/users.tabs.active')}</MenuItem>
+                <MenuItem value="pending">{__('pages/users.tabs.pending')}</MenuItem>
+                <MenuItem value="banned">{__('pages/users.tabs.banned')}</MenuItem>
+              </Field.Select>
+
+              <Button type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
+                {__('pages/users.form.submit_update')}
+              </Button>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
     </Form>
   );
 }
