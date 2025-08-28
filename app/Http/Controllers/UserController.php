@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -60,21 +59,15 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['nullable', 'image', 'max:2048'],
-            'status' => ['required', Rule::in(['active', 'pending'])],
+            'password' => ['required', 'string', 'min:8'],
             'roles' => ['sometimes', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
-
-        $avatarPath = $request->file('avatar')?->store('avatars', 'public');
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
-            'avatar' => $avatarPath,
-            'status' => $validated['status'],
         ]);
 
         if (isset($validated['roles'])) {
@@ -96,8 +89,6 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
-                'status' => $user->status,
                 'roles' => $user->roles->pluck('id')->toArray(),
             ],
             'roles' => Role::select('id', 'name')->get(),
@@ -109,9 +100,6 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['nullable', 'image', 'max:2048'],
-            'status' => ['sometimes', Rule::in(['active', 'pending', 'banned'])],
             'roles' => ['sometimes', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
@@ -124,22 +112,7 @@ class UserController extends Controller
             $user->email = $validated['email'];
         }
 
-        if (isset($validated['password'])) {
-            $user->password = $validated['password'];
-        }
-
-        if (isset($validated['status'])) {
-            $user->status = $validated['status'];
-        }
-
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            $user->avatar = $request->file('avatar')->store('avatars', 'public');
-        }
-
-        if (isset($validated['name']) || isset($validated['email']) || isset($validated['password']) || isset($validated['status']) || $request->hasFile('avatar')) {
+        if (isset($validated['name']) || isset($validated['email'])) {
             $user->save();
         }
 

@@ -46,10 +46,6 @@ return [
     'edit_user' => 'Edit user',
     'create_success' => 'User created',
     'update_success' => 'User updated',
-    'edit_tabs' => [
-        'general' => 'General',
-        'security' => 'Security',
-    ],
       'form' => [
           'name' => 'Full name',
           'email' => 'Email address',

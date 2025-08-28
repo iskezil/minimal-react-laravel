@@ -46,10 +46,6 @@ return [
     'edit_user' => 'Редактировать пользователя',
     'create_success' => 'Пользователь создан',
     'update_success' => 'Пользователь обновлен',
-    'edit_tabs' => [
-        'general' => 'Основное',
-        'security' => 'Безопасность',
-    ],
       'form' => [
           'name' => 'Полное имя',
           'email' => 'Email',
