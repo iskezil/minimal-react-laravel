@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
             'email' => $request->user()->email,
             'avatar' => $request->user()->avatar,
             'roles' => $request->user()->getRoleNames(),
+            'permissions' => $request->user()->getAllPermissions()->pluck('name'),
           ] : null,
         ],
         'locale' => fn () =>  App::currentLocale(),

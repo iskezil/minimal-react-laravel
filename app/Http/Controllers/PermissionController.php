@@ -12,6 +12,14 @@ use Spatie\Permission\Models\Role;
 
 class PermissionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:PERMISSIONS_VIEW')->only('index');
+        $this->middleware('permission:PERMISSIONS_CREATE')->only('store');
+        $this->middleware('permission:PERMISSIONS_EDIT')->only('update');
+        $this->middleware('permission:PERMISSIONS_DELETE')->only('destroy');
+    }
+
     public function index(): Response
     {
         syncLangFiles(['auth', 'navbar', 'navigation', 'pages/permissions', 'pages/roles']);

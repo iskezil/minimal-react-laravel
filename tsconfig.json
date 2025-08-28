@@ -24,6 +24,7 @@
     "strictNullChecks": true,
     "paths": {
       "src/*": ["resources/js/src/*"],
+      "@/*": ["resources/js/src/*"],
     }
   },
 }

@@ -8,6 +8,8 @@ import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 import { toast } from 'src/components/snackbar';
+import { useAuthz } from 'src/lib/authz';
+import { Can } from 'src/components/Can';
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -65,6 +67,9 @@ export default function Index({ users, roles }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
+  const { can } = useAuthz();
+  const canEdit = can('USERS_EDIT');
+  const canDelete = can('USERS_DELETE');
 
   const [userList, setUserList] = useState<User[]>(users);
   const [filters, setFilters] = useState<Filters>({ keyword: '', role: null, status: 'all' });
@@ -216,14 +221,16 @@ export default function Index({ users, roles }: Props) {
               { name: __('pages/users.breadcrumbs.users') },
             ]}
             action={
-              <Button
-                component={RouterLink}
-                href={paths.dashboard.root}
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-              >
-                {__('pages/users.add_user')}
-              </Button>
+              <Can permission="USERS_CREATE">
+                <Button
+                  component={RouterLink}
+                  href={paths.dashboard.root}
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  {__('pages/users.add_user')}
+                </Button>
+              </Can>
             }
             sx={{ mb: { xs: 3, md: 5 } }}
           />
@@ -301,13 +308,15 @@ export default function Index({ users, roles }: Props) {
                           ) : (
                             <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
                               {user.name}
-                              <IconButton
-                                className="action-icons"
-                                size="small"
-                                onClick={() => setEditing({ id: user.id, field: 'name' })}
-                              >
-                                <Iconify icon="solar:pen-bold" width={16} />
-                              </IconButton>
+                              {canEdit && (
+                                <IconButton
+                                  className="action-icons"
+                                  size="small"
+                                  onClick={() => setEditing({ id: user.id, field: 'name' })}
+                                >
+                                  <Iconify icon="solar:pen-bold" width={16} />
+                                </IconButton>
+                              )}
                               <IconButton
                                 className="action-icons"
                                 size="small"
@@ -334,13 +343,15 @@ export default function Index({ users, roles }: Props) {
                           ) : (
                             <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
                               {user.email}
-                              <IconButton
-                                className="action-icons"
-                                size="small"
-                                onClick={() => setEditing({ id: user.id, field: 'email' })}
-                              >
-                                <Iconify icon="solar:pen-bold" width={16} />
-                              </IconButton>
+                              {canEdit && (
+                                <IconButton
+                                  className="action-icons"
+                                  size="small"
+                                  onClick={() => setEditing({ id: user.id, field: 'email' })}
+                                >
+                                  <Iconify icon="solar:pen-bold" width={16} />
+                                </IconButton>
+                              )}
                               <IconButton
                                 className="action-icons"
                                 size="small"
@@ -381,13 +392,15 @@ export default function Index({ users, roles }: Props) {
                               >
                                 {statusText}
                               </Label>
-                              <IconButton
-                                className="action-icons"
-                                size="small"
-                                onClick={() => setEditing({ id: user.id, field: 'status' })}
-                              >
-                                <Iconify icon="solar:pen-bold" width={16} />
-                              </IconButton>
+                              {canEdit && (
+                                <IconButton
+                                  className="action-icons"
+                                  size="small"
+                                  onClick={() => setEditing({ id: user.id, field: 'status' })}
+                                >
+                                  <Iconify icon="solar:pen-bold" width={16} />
+                                </IconButton>
+                              )}
                               <IconButton
                                 className="action-icons"
                                 size="small"
@@ -440,13 +453,15 @@ export default function Index({ users, roles }: Props) {
                           ) : (
                             <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
                               {rolesText}
-                              <IconButton
-                                className="action-icons"
-                                size="small"
-                                onClick={() => setEditing({ id: user.id, field: 'roles' })}
-                              >
-                                <Iconify icon="solar:pen-bold" width={16} />
-                              </IconButton>
+                              {canEdit && (
+                                <IconButton
+                                  className="action-icons"
+                                  size="small"
+                                  onClick={() => setEditing({ id: user.id, field: 'roles' })}
+                                >
+                                  <Iconify icon="solar:pen-bold" width={16} />
+                                </IconButton>
+                              )}
                               <IconButton
                                 className="action-icons"
                                 size="small"
@@ -462,12 +477,16 @@ export default function Index({ users, roles }: Props) {
                             <IconButton size="small">
                               <Iconify icon="solar:eye-bold" />
                             </IconButton>
-                            <IconButton size="small" color="primary">
-                              <Iconify icon="solar:pen-bold" />
-                            </IconButton>
-                            <IconButton size="small" color="error" onClick={() => setDeleteId(user.id)}>
-                              <Iconify icon="solar:trash-bin-trash-bold" />
-                            </IconButton>
+                            {canEdit && (
+                              <IconButton size="small" color="primary">
+                                <Iconify icon="solar:pen-bold" />
+                              </IconButton>
+                            )}
+                            {canDelete && (
+                              <IconButton size="small" color="error" onClick={() => setDeleteId(user.id)}>
+                                <Iconify icon="solar:trash-bin-trash-bold" />
+                              </IconButton>
+                            )}
                           </Stack>
                         </TableCell>
                       </TableRow>

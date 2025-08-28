@@ -57,6 +57,7 @@ type PageProps = {
       email: string;
       avatar: string;
       roles: string[];
+      permissions: string[];
     };
   };
 };

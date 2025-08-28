@@ -20,28 +20,39 @@ Route::middleware('auth')->group(function () {
   });
 
   Route::get('/users', [UserController::class, 'index'])
+    ->middleware('permission:USERS_VIEW')
     ->name('users.index');
   Route::patch('/users/{user}', [UserController::class, 'update'])
+    ->middleware('permission:USERS_EDIT')
     ->name('users.update');
   Route::delete('/users/{user}', [UserController::class, 'destroy'])
+    ->middleware('permission:USERS_DELETE')
     ->name('users.destroy');
 
   Route::get('/roles', [RoleController::class, 'index'])
+    ->middleware('permission:ROLES_VIEW')
     ->name('roles.index');
   Route::post('/roles', [RoleController::class, 'store'])
+    ->middleware('permission:ROLES_CREATE')
     ->name('roles.store');
   Route::patch('/roles/{role}', [RoleController::class, 'update'])
+    ->middleware('permission:ROLES_EDIT')
     ->name('roles.update');
   Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
+    ->middleware('permission:ROLES_DELETE')
     ->name('roles.destroy');
 
   Route::get('/permissions', [PermissionController::class, 'index'])
+    ->middleware('permission:PERMISSIONS_VIEW')
     ->name('permissions.index');
   Route::post('/permissions', [PermissionController::class, 'store'])
+    ->middleware('permission:PERMISSIONS_CREATE')
     ->name('permissions.store');
   Route::patch('/permissions/{permission}', [PermissionController::class, 'update'])
+    ->middleware('permission:PERMISSIONS_EDIT')
     ->name('permissions.update');
   Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])
+    ->middleware('permission:PERMISSIONS_DELETE')
     ->name('permissions.destroy');
 });
 

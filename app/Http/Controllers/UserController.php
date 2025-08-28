@@ -12,6 +12,13 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:USERS_VIEW')->only('index');
+        $this->middleware('permission:USERS_EDIT')->only('update');
+        $this->middleware('permission:USERS_DELETE')->only('destroy');
+    }
+
     public function index(): Response
     {
         syncLangFiles(['auth', 'navbar', 'navigation', 'pages/users']);

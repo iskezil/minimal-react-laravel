@@ -4,7 +4,8 @@
     "jsx": "react",
     "baseUrl": ".",
     "paths": {
-      "src/*": ["resources/js/src/*"]
+      "src/*": ["resources/js/src/*"],
+      "@/*": ["resources/js/src/*"]
     }
   }
 }

@@ -9,6 +9,7 @@ import { CONFIG } from 'src/global-config';
 import { Label } from 'src/components/label';
 import { SvgColor } from 'src/components/svg-color';
 import { useLang } from 'src/hooks/useLang';
+import { useAuthz } from 'src/lib/authz';
 
 // ----------------------------------------------------------------------
 
@@ -50,9 +51,10 @@ const ICONS = {
 
 export function useNavData(): NavSectionProps['data'] {
   const { __ } = useLang();
+  const { can, canAny } = useAuthz();
 
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const data: NavSectionProps['data'] = [
       {
         subheader: __('navigation.overview.subheader'),
         items: [
@@ -71,26 +73,44 @@ export function useNavData(): NavSectionProps['data'] {
             title: __('navigation.management.users'),
             path: paths.users,
             icon: ICONS.user,
-            allowedRoles: ['ADMIN'],
+            permission: 'USERS_VIEW',
           },
           {
             title: __('navigation.management.rights'),
             path: paths.roles,
             icon: ICONS.lock,
+            anyOf: ['ROLES_VIEW', 'PERMISSIONS_VIEW'],
             children: [
               {
                 title: __('navigation.management.roles'),
                 path: paths.roles,
+                permission: 'ROLES_VIEW',
               },
               {
                 title: __('navigation.management.permissions'),
                 path: paths.permissions,
+                permission: 'PERMISSIONS_VIEW',
               },
             ],
           },
         ],
       },
-    ],
-    [__]
-  );
+    ];
+
+    const filterItems = (items: any[]): any[] =>
+      items
+        .filter((item) => {
+          if (item.permission && !can(item.permission)) return false;
+          if (item.anyOf && !canAny(item.anyOf)) return false;
+          if (item.children) {
+            item.children = filterItems(item.children);
+            if (item.children.length === 0) return false;
+          }
+          return true;
+        });
+
+    return data
+      .map((group) => ({ ...group, items: filterItems(group.items) }))
+      .filter((group) => group.items.length > 0);
+  }, [__, can, canAny]);
 }

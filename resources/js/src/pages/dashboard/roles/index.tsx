@@ -10,6 +10,8 @@ import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { PERMISSION_NAMES, ROLE_NAMES } from 'src/enums/rights';
+import { useAuthz } from 'src/lib/authz';
+import { Can } from 'src/components/Can';
 
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -57,6 +59,9 @@ export default function Index({ roles, permissions }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
+  const { can } = useAuthz();
+  const canEdit = can('ROLES_EDIT');
+  const canDelete = can('ROLES_DELETE');
 
   const [roleList, setRoleList] = useState<Role[]>(roles);
   const [page, setPage] = useState(0);
@@ -130,13 +135,15 @@ export default function Index({ roles, permissions }: Props) {
               { name: __('pages/roles.breadcrumbs.roles') },
             ]}
             action={
-              <Button
-                variant="contained"
-                startIcon={<Iconify icon="mingcute:add-line" />}
-                onClick={() => setOpenAdd(true)}
-              >
-                {__('pages/roles.add_role')}
-              </Button>
+              <Can permission="ROLES_CREATE">
+                <Button
+                  variant="contained"
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                  onClick={() => setOpenAdd(true)}
+                >
+                  {__('pages/roles.add_role')}
+                </Button>
+              </Can>
             }
             sx={{ mb: { xs: 3, md: 5 } }}
           />
@@ -185,20 +192,24 @@ export default function Index({ roles, permissions }: Props) {
                         <IconButton color="primary" onClick={() => setViewRole(role)}>
                           <Iconify icon="solar:eye-bold" />
                         </IconButton>
-                        <IconButton
-                          color="warning"
-                          onClick={() =>
-                            setEditRole({
-                              id: role.id,
-                              permissions: role.permissions.map((p) => p.id),
-                            })
-                          }
-                        >
-                          <Iconify icon="solar:pen-bold" />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => setDeleteId(role.id)}>
-                          <Iconify icon="solar:trash-bin-trash-bold" />
-                        </IconButton>
+                        {canEdit && (
+                          <IconButton
+                            color="warning"
+                            onClick={() =>
+                              setEditRole({
+                                id: role.id,
+                                permissions: role.permissions.map((p) => p.id),
+                              })
+                            }
+                          >
+                            <Iconify icon="solar:pen-bold" />
+                          </IconButton>
+                        )}
+                        {canDelete && (
+                          <IconButton color="error" onClick={() => setDeleteId(role.id)}>
+                            <Iconify icon="solar:trash-bin-trash-bold" />
+                          </IconButton>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -227,27 +238,29 @@ export default function Index({ roles, permissions }: Props) {
         </DashboardContent>
       </DashboardLayout>
 
-      <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="xs">
-        <DialogTitle>{__('pages/roles.add_role')}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={__('pages/roles.add_role_placeholder')}
-            size="small"
-            fullWidth
-            variant="filled"
-            value={newRole}
-            onChange={(e) => setNewRole(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAdd(false)}>{__('pages/roles.cancel')}</Button>
-          <Button variant="contained" onClick={handleCreate} disabled={!newRole}>
-            {__('pages/roles.add_role')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Can permission="ROLES_CREATE">
+        <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="xs">
+          <DialogTitle>{__('pages/roles.add_role')}</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label={__('pages/roles.add_role_placeholder')}
+              size="small"
+              fullWidth
+              variant="filled"
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenAdd(false)}>{__('pages/roles.cancel')}</Button>
+            <Button variant="contained" onClick={handleCreate} disabled={!newRole}>
+              {__('pages/roles.add_role')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Can>
 
       <Dialog open={viewRole !== null} onClose={() => setViewRole(null)} fullWidth maxWidth="sm">
         <DialogTitle>{__('pages/roles.permissions')}</DialogTitle>
