@@ -42,10 +42,12 @@ return [
     'delete_confirm' => 'Are you sure you want to delete this user?',
     'delete' => 'Delete',
     'delete_success' => 'User deleted',
+    'delete_error' => 'Failed to delete user',
     'create_user' => 'Create user',
     'edit_user' => 'Edit user',
     'create_success' => 'User created',
     'update_success' => 'User updated',
+    'update_error' => 'Failed to update user',
     'edit_tabs' => [
         'general' => 'General',
         'security' => 'Security',

@@ -2,6 +2,7 @@ import { router, usePage } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useState } from 'react';
 
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
@@ -16,6 +17,8 @@ import { paths } from 'src/routes/paths';
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Label } from '@/components/label';
 import Box from '@mui/material/Box';
+import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
+import { useAuthz } from 'src/lib/authz';
 
 // ----------------------------------------------------------------------
 
@@ -51,6 +54,9 @@ export function EditUserForm({ roles, currentUser }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
+  const { can } = useAuthz();
+  const canDelete = can('USERS_DELETE');
+  const [openDelete, setOpenDelete] = useState(false);
 
   const Schema = z.object({
     name: z.string().min(1, { message: __('validation.required') }),
@@ -97,7 +103,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
   const onSubmit = handleSubmit((data) => {
     const payload = new FormData();
     payload.append('_token', csrfToken);
-    payload.append('_method', 'PUT');
+    payload.append('_method', 'PATCH');
     payload.append('name', data.name);
     payload.append('email', data.email);
     data.roles.forEach((r) => payload.append('roles[]', r));
@@ -117,6 +123,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
         Object.entries(errors).forEach(([field, message]) => {
           setError(field as keyof FormValues, { type: 'server', message: message as string });
         });
+        toast.error(__('pages/users.update_error'));
       },
     });
   });
@@ -126,93 +133,111 @@ export function EditUserForm({ roles, currentUser }: Props) {
       data: { _token: csrfToken },
       onSuccess: () => {
         toast.success(__('pages/users.delete_success'));
-        router.visit(paths.users);
+        setOpenDelete(false);
+      },
+      onError: () => {
+        toast.error(__('pages/users.delete_error'));
       },
     });
   };
 
   return (
-    <Form methods={methods} onSubmit={onSubmit}>
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={{ p: 3, position: 'relative' }}>
-            <Label color={statusColor} sx={{ position: 'absolute', top: 24, right: 24 }}>
-              {__(`pages/users.tabs.${currentStatus}`)}
-            </Label>
-            <Stack spacing={3} alignItems="center">
-              <Box sx={{ mb: 5 }}>
-                <Field.UploadAvatar
-                  name="avatar"
-                  accept={{ 'image/jpeg': [], 'image/png': [], 'image/gif': [] }}
-                  maxSize={3145728}
-                  helperText={
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{
-                        mt: 3,
-                        mx: 'auto',
-                        display: 'block',
-                        textAlign: 'center',
-                        color: 'text.disabled',
-                      }}
-                    >
-                      {__('pages/users.form.avatar_helper')}
-                    </Typography>
-                  }
+    <>
+      <Form methods={methods} onSubmit={onSubmit}>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Card sx={{ p: 3, position: 'relative' }}>
+              <Label color={statusColor} sx={{ position: 'absolute', top: 24, right: 24 }}>
+                {__(`pages/users.tabs.${currentStatus}`)}
+              </Label>
+              <Stack spacing={3} alignItems="center">
+                <Box sx={{ mb: 5 }}>
+                  <Field.UploadAvatar
+                    name="avatar"
+                    accept={{ 'image/jpeg': [], 'image/png': [], 'image/gif': [] }}
+                    maxSize={3145728}
+                    helperText={
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                          mt: 3,
+                          mx: 'auto',
+                          display: 'block',
+                          textAlign: 'center',
+                          color: 'text.disabled',
+                        }}
+                      >
+                        {__('pages/users.form.avatar_helper')}
+                      </Typography>
+                    }
+                  />
+                </Box>
+                <Field.Switch
+                  name="banned"
+                  label={__('pages/users.form.banned')}
+                  helperText={__('pages/users.form.banned_caption')}
+                  slotProps={{
+                    wrapper: { sx: { width: 1 } },
+                    helperText: { sx: { textAlign: 'left' } },
+                  }}
                 />
-              </Box>
-              <Field.Switch
-                name="banned"
-                label={__('pages/users.form.banned')}
-                helperText={__('pages/users.form.banned_caption')}
-                slotProps={{
-                  wrapper: { sx: { width: 1 } },
-                  helperText: { sx: { textAlign: 'left' } },
-                }}
-              />
-              <Field.Switch
-                name="email_verified"
-                label={__('pages/users.form.email_verified')}
-                helperText={__('pages/users.form.email_verified_caption')}
-                slotProps={{
-                  wrapper: { sx: { width: 1 } },
-                  helperText: { sx: { textAlign: 'left' } },
-                }}
-              />
-              <Button
-                color="error"
-                variant="soft"
-                sx={{ mt: 1, alignSelf: 'stretch' }}
-                onClick={handleDelete}
-              >
-                {__('pages/users.delete_user')}
-              </Button>
-            </Stack>
-          </Card>
+                <Field.Switch
+                  name="email_verified"
+                  label={__('pages/users.form.email_verified')}
+                  helperText={__('pages/users.form.email_verified_caption')}
+                  slotProps={{
+                    wrapper: { sx: { width: 1 } },
+                    helperText: { sx: { textAlign: 'left' } },
+                  }}
+                />
+                {canDelete && (
+                  <Button
+                    color="error"
+                    variant="soft"
+                    sx={{ mt: 1, alignSelf: 'stretch' }}
+                    onClick={() => setOpenDelete(true)}
+                  >
+                    {__('pages/users.delete_user')}
+                  </Button>
+                )}
+              </Stack>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 8 }}>
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={3}>
+                <Field.Text name="name" label={__('pages/users.form.name')} />
+                <Field.Text name="email" label={__('pages/users.form.email')} />
+
+                <Field.MultiSelect
+                  name="roles"
+                  label={__('pages/users.form.roles')}
+                  options={roleOptions}
+                  placeholder=""
+                  checkbox
+                />
+
+                <Button type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
+                  {__('pages/users.form.submit_update')}
+                </Button>
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Card sx={{ p: 3 }}>
-            <Stack spacing={3}>
-              <Field.Text name="name" label={__('pages/users.form.name')} />
-              <Field.Text name="email" label={__('pages/users.form.email')} />
-
-              <Field.MultiSelect
-                name="roles"
-                label={__('pages/users.form.roles')}
-                options={roleOptions}
-                placeholder=""
-                checkbox
-              />
-
-              <Button type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
-                {__('pages/users.form.submit_update')}
-              </Button>
-            </Stack>
-          </Card>
-        </Grid>
-      </Grid>
-    </Form>
+      </Form>
+      <ConfirmDialog
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        title={__('pages/users.delete_user')}
+        content={__('pages/users.delete_confirm')}
+        action={
+          <Button color="error" variant="contained" onClick={handleDelete}>
+            {__('pages/users.delete')}
+          </Button>
+        }
+      />
+    </>
   );
 }
