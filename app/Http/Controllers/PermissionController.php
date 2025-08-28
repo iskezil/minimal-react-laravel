@@ -45,7 +45,7 @@ class PermissionController extends Controller
                 'name' => $r->name,
             ]);
 
-        return Inertia::render('dashboard/permissions', [
+        return Inertia::render('dashboard/permissions/list', [
             'permissions' => $permissions,
             'roles' => $roles,
         ]);

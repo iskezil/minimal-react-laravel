@@ -4,7 +4,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { Can } from 'src/components/Can';
-import { UserForm } from 'src/sections/users/user-form';
+import { UserForm } from 'src/pages/dashboard/users/components/user-form';
 
 // ----------------------------------------------------------------------
 
