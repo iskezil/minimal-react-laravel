@@ -22,6 +22,15 @@ Route::middleware('auth')->group(function () {
   Route::get('/users', [UserController::class, 'index'])
     ->middleware('permission:USERS_VIEW')
     ->name('users.index');
+  Route::get('/users/create', [UserController::class, 'create'])
+    ->middleware('permission:USERS_CREATE')
+    ->name('users.create');
+  Route::post('/users', [UserController::class, 'store'])
+    ->middleware('permission:USERS_CREATE')
+    ->name('users.store');
+  Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+    ->middleware('permission:USERS_EDIT')
+    ->name('users.edit');
   Route::patch('/users/{user}', [UserController::class, 'update'])
     ->middleware('permission:USERS_EDIT')
     ->name('users.update');

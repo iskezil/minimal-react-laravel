@@ -5,6 +5,8 @@ return [
     'breadcrumbs' => [
         'dashboard' => 'Dashboard',
         'users' => 'Users',
+        'create' => 'Create',
+        'edit' => 'Edit',
     ],
     'table' => [
         'name' => 'Name',
@@ -40,4 +42,16 @@ return [
     'delete_confirm' => 'Are you sure you want to delete this user?',
     'delete' => 'Delete',
     'delete_success' => 'User deleted',
+    'create_user' => 'Create user',
+    'edit_user' => 'Edit user',
+    'create_success' => 'User created',
+    'update_success' => 'User updated',
+    'form' => [
+        'name' => 'Full name',
+        'email' => 'Email address',
+        'password' => 'Password',
+        'roles' => 'Roles',
+        'submit_create' => 'Create user',
+        'submit_update' => 'Save changes',
+    ],
 ];
