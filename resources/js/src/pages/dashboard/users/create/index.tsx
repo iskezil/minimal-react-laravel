@@ -4,7 +4,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { Can } from 'src/components/Can';
-import { UserForm } from 'src/pages/dashboard/users/components/user-form';
+import { CreateUserForm } from 'src/pages/dashboard/users/create/components/create-user-form';
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ export default function Create({ roles }: Props) {
       <title>{metadata.title}</title>
       <DashboardLayout>
         <Can permission="USERS_CREATE">
-          <DashboardContent maxWidth="md">
+          <DashboardContent maxWidth="xl">
             <CustomBreadcrumbs
               heading={__('pages/users.create_user')}
               links={[
@@ -34,11 +34,10 @@ export default function Create({ roles }: Props) {
               ]}
               sx={{ mb: { xs: 3, md: 5 } }}
             />
-            <UserForm roles={roles} />
+            <CreateUserForm roles={roles} />
           </DashboardContent>
         </Can>
       </DashboardLayout>
     </>
   );
 }
-
