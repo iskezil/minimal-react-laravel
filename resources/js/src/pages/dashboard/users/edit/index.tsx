@@ -4,30 +4,25 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
 import { Can } from 'src/components/Can';
-import { EditUserForm } from '@/pages/dashboard/users/edit/components/edit-user-form';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import { Iconify } from '@/components/iconify';
 import { RouterLink } from 'src/routes/components';
 import { removeLastSlash } from 'minimal-shared/utils';
 import { usePathname } from 'src/routes/hooks';
-
-const NAV_ITEMS = [
-  {
-    label: 'General',
-    icon: <Iconify width={24} icon="solar:user-id-bold" />,
-    href: paths.userEdit,
-  },
-  {
-    label: 'Security',
-    icon: <Iconify width={24} icon="ic:round-vpn-key" />,
-    href: `${paths.userEdit}/change-password`,
-  },
-];
+import { EditUserForm } from '@/pages/dashboard/users/edit/components/edit-user-form';
+import { EditPasswordUserForm } from '@/pages/dashboard/users/edit/components/edit-password-user-form';
 
 type Role = { id: number; name: string };
 
-type User = { id: number; name: string; email: string; roles: number[]; status: string };
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string | null;
+  roles: number[];
+  status: string;
+};
 
 interface Props {
   user: User;
@@ -39,6 +34,22 @@ const metadata = { title: `Edit User | Dashboard - ${CONFIG.appName}` };
 export default function Edit({ user, roles }: Props) {
   const { __ } = useLang();
   const pathname = usePathname();
+
+  const navItems = [
+    {
+      label: __('pages/users.edit_tabs.general'),
+      icon: <Iconify width={24} icon="solar:user-id-bold" />,
+      href: paths.userEdit(user.id),
+    },
+    {
+      label: __('pages/users.edit_tabs.security'),
+      icon: <Iconify width={24} icon="ic:round-vpn-key" />,
+      href: `${paths.userEdit(user.id)}/change-password`,
+    },
+  ];
+
+  const currentPath = removeLastSlash(pathname);
+
   return (
     <>
       <title>{metadata.title}</title>
@@ -54,8 +65,8 @@ export default function Edit({ user, roles }: Props) {
               ]}
               sx={{ mb: { xs: 3, md: 5 } }}
             />
-            <Tabs value={removeLastSlash(pathname)} sx={{ mb: { xs: 3, md: 5 } }}>
-              {NAV_ITEMS.map((tab) => (
+            <Tabs value={currentPath} sx={{ mb: { xs: 3, md: 5 } }}>
+              {navItems.map((tab) => (
                 <Tab
                   component={RouterLink}
                   key={tab.href}
@@ -66,7 +77,11 @@ export default function Edit({ user, roles }: Props) {
                 />
               ))}
             </Tabs>
-            <EditUserForm currentUser={user} roles={roles} />
+            {currentPath.endsWith('change-password') ? (
+              <EditPasswordUserForm currentUser={user} />
+            ) : (
+              <EditUserForm currentUser={user} roles={roles} />
+            )}
           </DashboardContent>
         </Can>
       </DashboardLayout>
