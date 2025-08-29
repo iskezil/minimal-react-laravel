@@ -4,7 +4,7 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import { Iconify } from 'src/components/iconify';
 import { useLang } from 'src/hooks/useLang';
-import type { Filters, Role } from '../types';
+import type { Filters, Role } from '../../types';
 
 // ----------------------------------------------------------------------
 

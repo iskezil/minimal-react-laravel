@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Iconify } from 'src/components/iconify';
 import { useLang } from 'src/hooks/useLang';
-import type { Filters, Role } from '../types';
+import type { Filters, Role } from '../../types';
 
 // ----------------------------------------------------------------------
 
