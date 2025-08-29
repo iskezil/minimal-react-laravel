@@ -52,6 +52,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
+  const authUserId = (props.auth.user as any)?.id as number | undefined;
   const { can } = useAuthz();
   const canDelete = can('USERS_DELETE');
   const [openDelete, setOpenDelete] = useState(false);
@@ -114,13 +115,37 @@ export function EditUserForm({ roles, currentUser }: Props) {
   )[currentStatus];
 
   const onSubmit = handleSubmit((data) => {
+    const status = data.banned ? 'banned' : currentUser.status === 'pending' ? 'pending' : 'active';
+    const newRoles = data.roles.map(Number).sort();
+    const currentRoles = [...currentUser.roles].sort();
+    const rolesChanged =
+      newRoles.length !== currentRoles.length || newRoles.some((r, idx) => r !== currentRoles[idx]);
+    const avatarChanged = data.avatar instanceof File;
+    const emailVerifiedChanged = data.email_verified !== !!currentUser.email_verified_at;
+    const hasChanges =
+      data.name !== currentUser.name ||
+      data.email !== currentUser.email ||
+      status !== currentUser.status ||
+      rolesChanged ||
+      avatarChanged ||
+      emailVerifiedChanged;
+
+    if (!hasChanges) {
+      toast.error(__('pages/users.no_changes'));
+      return;
+    }
+
+    if (currentUser.id === authUserId && rolesChanged) {
+      toast.error(__('pages/users.self_role_error'));
+      return;
+    }
+
     const payload = new FormData();
     payload.append('_token', csrfToken);
     payload.append('_method', 'PATCH');
     payload.append('name', data.name);
     payload.append('email', data.email);
-    data.roles.forEach((role: string) => payload.append('roles[]', role));
-    const status = data.banned ? 'banned' : currentUser.status === 'pending' ? 'pending' : 'active';
+    newRoles.forEach((role: number) => payload.append('roles[]', String(role)));
     payload.append('status', status);
     payload.append('email_verified_at', data.email_verified ? new Date().toISOString() : '');
     if (data.avatar instanceof File) {
@@ -142,6 +167,11 @@ export function EditUserForm({ roles, currentUser }: Props) {
   });
 
   const handleDelete = () => {
+    if (currentUser.id === authUserId) {
+      toast.error(__('pages/users.self_delete_error'));
+      setOpenDelete(false);
+      return;
+    }
     router.delete(route('users.destroy', currentUser.id), {
       data: { _token: csrfToken },
       onSuccess: () => {
