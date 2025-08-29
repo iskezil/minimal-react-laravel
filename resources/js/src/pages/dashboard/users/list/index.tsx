@@ -36,7 +36,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { FilledInput } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
 
@@ -57,8 +57,6 @@ interface Props {
   users: User[];
   roles: Role[];
 }
-
-type PageProps = InertiaPageProps & { csrf_token: string };
 
 const metadata = { title: `Users | Dashboard - ${CONFIG.appName}` };
 

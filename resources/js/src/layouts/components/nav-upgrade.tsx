@@ -14,20 +14,9 @@ import { CONFIG } from 'src/global-config';
 import { Label } from 'src/components/label';
 
 import { usePage } from '@inertiajs/react';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
-
-type PageProps = InertiaPageProps & {
-  auth: {
-    user: {
-      name: string;
-      email: string;
-      avatar: string;
-      role?: string;
-    };
-  };
-};
 
 export function NavUpgrade({ sx, ...other }: BoxProps) {
   const {

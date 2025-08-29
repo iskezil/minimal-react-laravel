@@ -11,15 +11,13 @@ import { IconButton, InputAdornment } from '@mui/material';
 import { Field, Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 import { useBoolean } from 'minimal-shared/hooks';
 import { Iconify } from '@/components/iconify';
 
 // ----------------------------------------------------------------------
 
 type User = { id: number };
-
-type PageProps = InertiaPageProps & { csrf_token: string };
 
 type FormValues = {
   current_password: string;

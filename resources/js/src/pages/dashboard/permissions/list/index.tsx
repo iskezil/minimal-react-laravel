@@ -31,7 +31,7 @@ import DialogActions from '@mui/material/DialogActions';
 import InputAdornment from '@mui/material/InputAdornment';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
 
@@ -43,8 +43,6 @@ type Permission = {
   created_at: string;
   roles: Role[];
 };
-
-type PageProps = InertiaPageProps & { csrf_token: string };
 
 type Props = { permissions: Permission[]; roles: Role[] };
 

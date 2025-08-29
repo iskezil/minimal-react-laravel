@@ -12,7 +12,7 @@ import { FlagIcon } from 'src/components/flag-icon';
 import { CustomPopover } from 'src/components/custom-popover';
 import { transitionTap, varHover, varTap } from 'src/components/animate';
 import { router, usePage } from '@inertiajs/react';
-import type { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 // ----------------------------------------------------------------------
 
 export type LanguagePopoverProps = IconButtonProps & {
@@ -23,13 +23,9 @@ export type LanguagePopoverProps = IconButtonProps & {
   }[];
 };
 
-type AppPageProps = InertiaPageProps & {
-  locale: string;
-  csrf_token: string;
-};
 export function LanguagePopover({ data = [], sx, ...other }: LanguagePopoverProps) {
   const { open, anchorEl, onClose, onOpen } = usePopover();
-  const { props } = usePage<AppPageProps>();
+  const { props } = usePage<PageProps>();
   const { locale, csrf_token } = props;
 
   const handleChangeLang = useCallback(
