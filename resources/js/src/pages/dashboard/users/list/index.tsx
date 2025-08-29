@@ -53,6 +53,7 @@ export default function List({ users, roles }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
+  const authUserId = (props.auth.user as any)?.id as number | undefined;
   const { can } = useAuthz();
   const canEdit = can('USERS_EDIT');
   const canDelete = can('USERS_DELETE');
@@ -83,14 +84,46 @@ export default function List({ users, roles }: Props) {
 
   const handleSave = (id: number, field: keyof User, value?: any) => {
     const updated = userList.find((u) => u.id === id);
-    if (!updated) return;
+    const original = users.find((u) => u.id === id);
+    if (!updated || !original) return;
     const data: Record<string, any> = { _token: csrfToken };
+    let changed = false;
+    const revert = () => setUserList((prev) => prev.map((u) => (u.id === id ? original : u)));
     if (field === 'roles') {
-      data.roles = value ?? updated.roles;
+      const newRoles = (value ?? updated.roles) as number[];
+      const currentRoles = [...original.roles];
+      newRoles.sort();
+      currentRoles.sort();
+      changed =
+        newRoles.length !== currentRoles.length ||
+        newRoles.some((role, idx) => role !== currentRoles[idx]);
+      if (id === authUserId && changed) {
+        toast.error(__('pages/users.self_role_error'));
+        setEditing({ id: null, field: null });
+        revert();
+        return;
+      }
+      if (changed) {
+        data.roles = newRoles;
+      }
     } else if (field === 'status') {
-      data.status = value ?? updated.status;
+      const newStatus = value ?? updated.status;
+      changed = newStatus !== original.status;
+      if (changed) {
+        data.status = newStatus;
+      }
     } else {
-      data[field] = value ?? (updated as any)[field];
+      const newValue = value ?? (updated as any)[field];
+      const originalValue = (original as any)[field];
+      changed = newValue !== originalValue;
+      if (changed) {
+        data[field] = newValue;
+      }
+    }
+    if (!changed) {
+      setEditing({ id: null, field: null });
+      revert();
+      return;
     }
     router.patch(route('users.update', id), data, { preserveScroll: true });
     setEditing({ id: null, field: null });
@@ -193,6 +226,11 @@ export default function List({ users, roles }: Props) {
 
   const handleDelete = () => {
     if (deleteId === null) return;
+    if (deleteId === authUserId) {
+      toast.error(__('pages/users.self_delete_error'));
+      setDeleteId(null);
+      return;
+    }
     router.delete(route('users.destroy', deleteId), {
       data: { _token: csrfToken },
       onSuccess: () => {
@@ -472,7 +510,13 @@ export default function List({ users, roles }: Props) {
                               <IconButton
                                 size="small"
                                 color="error"
-                                onClick={() => setDeleteId(user.id)}
+                                onClick={() => {
+                                  if (user.id === authUserId) {
+                                    toast.error(__('pages/users.self_delete_error'));
+                                  } else {
+                                    setDeleteId(user.id);
+                                  }
+                                }}
                               >
                                 <Iconify icon="solar:trash-bin-trash-bold" />
                               </IconButton>
