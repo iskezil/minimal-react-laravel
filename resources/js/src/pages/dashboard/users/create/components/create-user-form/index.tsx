@@ -73,7 +73,7 @@ export function CreateUserForm({ roles }: Props) {
           attribute: __('validation.attributes.roles'),
         }),
       }),
-      avatar: z.any().optional(),
+      avatar: z.union([z.instanceof(File), z.string(), z.null()]).nullable(),
       status: z.enum(['active', 'pending']),
       email_verified: z.boolean(),
     })
