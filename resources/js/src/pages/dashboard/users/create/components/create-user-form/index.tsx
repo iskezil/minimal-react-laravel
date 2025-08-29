@@ -230,8 +230,8 @@ export function CreateUserForm({ roles }: Props) {
               />
 
               <Field.Select name="status" label={__('pages/users.form.status')}>
-                <MenuItem value="active">{__('pages/users.tabs.active')}</MenuItem>
-                <MenuItem value="pending">{__('pages/users.tabs.pending')}</MenuItem>
+                <MenuItem value="active">{__('pages/users.statuses.active')}</MenuItem>
+                <MenuItem value="pending">{__('pages/users.statuses.pending')}</MenuItem>
               </Field.Select>
 
               <Button type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>

@@ -108,11 +108,17 @@ export default function List({ users, roles }: Props) {
     setEditing({ id: null, field: null });
   };
 
-  const STATUS_OPTIONS = [
+  const STATUS_TABS = [
     { value: 'all', label: __('pages/users.tabs.all') },
     { value: 'active', label: __('pages/users.tabs.active') },
     { value: 'pending', label: __('pages/users.tabs.pending') },
     { value: 'banned', label: __('pages/users.tabs.banned') },
+  ];
+
+  const STATUS_OPTIONS = [
+    { value: 'active', label: __('pages/users.statuses.active') },
+    { value: 'pending', label: __('pages/users.statuses.pending') },
+    { value: 'banned', label: __('pages/users.statuses.banned') },
   ];
 
   const filteredUsers = useMemo(
@@ -237,7 +243,7 @@ export default function List({ users, roles }: Props) {
 
           <Card>
             <Tabs value={filters.status} onChange={handleChangeStatus} sx={{ px: { md: 2.5 } }}>
-              {STATUS_OPTIONS.map((tab) => (
+              {STATUS_TABS.map((tab) => (
                 <Tab
                   key={tab.value}
                   value={tab.value}
@@ -289,7 +295,7 @@ export default function List({ users, roles }: Props) {
                     const rolesText = user.roles.length
                       ? user.roles.map(translateRole).join(', ')
                       : '-';
-                    const statusText = __(`pages/users.tabs.${user.status}`);
+                    const statusText = __(`pages/users.statuses.${user.status}`);
                     return (
                       <TableRow key={user.id} hover>
                         <TableCell>
@@ -371,10 +377,11 @@ export default function List({ users, roles }: Props) {
                               value={user.status}
                               onChange={(e) => {
                                 handleEditChange(user.id, 'status', e.target.value);
+                                handleSave(user.id, 'status');
                               }}
-                                onClose={() => setEditing({ id: null, field: null })}
-                              >
-                              {STATUS_OPTIONS.filter((o) => o.value !== 'all').map((o) => (
+                              onClose={() => setEditing({ id: null, field: null })}
+                            >
+                              {STATUS_OPTIONS.map((o) => (
                                 <MenuItem key={o.value} value={o.value}>
                                   {o.label}
                                 </MenuItem>
