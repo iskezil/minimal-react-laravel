@@ -1,4 +1,4 @@
-import { type ChangeEvent, type SyntheticEvent, useMemo, useState, useEffect } from 'react';
+import { type ChangeEvent, type SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 
 import { CONFIG } from 'src/global-config';
@@ -36,6 +36,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { FilledInput } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
 
@@ -57,7 +58,7 @@ interface Props {
   roles: Role[];
 }
 
-type PageProps = { csrf_token: string };
+type PageProps = InertiaPageProps & { csrf_token: string };
 
 const metadata = { title: `Users | Dashboard - ${CONFIG.appName}` };
 
@@ -452,8 +453,8 @@ export default function List({ users, roles }: Props) {
                               renderValue={(selected) =>
                                 (selected as number[]).map(translateRole).join(', ')
                               }
-                                onClose={() => handleSave(user.id, 'roles')}
-                              >
+                              onClose={() => handleSave(user.id, 'roles')}
+                            >
                               {roles.map((r) => {
                                 const key = r.name.toLowerCase();
                                 return (
@@ -502,7 +503,11 @@ export default function List({ users, roles }: Props) {
                               </IconButton>
                             )}
                             {canDelete && (
-                              <IconButton size="small" color="error" onClick={() => setDeleteId(user.id)}>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => setDeleteId(user.id)}
+                              >
                                 <Iconify icon="solar:trash-bin-trash-bold" />
                               </IconButton>
                             )}
