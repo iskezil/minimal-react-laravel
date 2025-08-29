@@ -25,6 +25,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateBorder } from 'src/components/animate';
 
 import { usePage } from '@inertiajs/react';
+import type { PageProps } from '@inertiajs/core';
 import { CONFIG } from 'src/global-config';
 
 import { UpgradeBlock } from './nav-upgrade';
@@ -40,17 +41,6 @@ export type AccountDrawerProps = IconButtonProps & {
     icon?: React.ReactNode;
     info?: React.ReactNode;
   }[];
-};
-
-type PageProps = {
-  auth: {
-    user: {
-      name: string;
-      email: string;
-      avatar: string;
-      role?: string;
-    };
-  };
 };
 
 export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {

@@ -1,13 +1,5 @@
 import { usePage } from '@inertiajs/react';
-
-interface PageProps {
-  auth: {
-    user?: {
-      roles?: string[];
-      permissions?: string[];
-    };
-  };
-}
+import type { PageProps } from '@inertiajs/core';
 
 export function useAuthz() {
   const { props } = usePage<PageProps>();

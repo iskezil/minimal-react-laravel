@@ -33,7 +33,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 
 // ----------------------------------------------------------------------
 
@@ -48,8 +48,6 @@ type Role = {
   created_at: string;
   permissions: Permission[];
 };
-
-type PageProps = InertiaPageProps & { csrf_token: string };
 
 type Props = { roles: Role[]; permissions: Permission[] };
 

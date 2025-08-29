@@ -16,8 +16,6 @@ import { _contacts, _notifications } from 'src/_mock';
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
 
-import { usePage } from '@inertiajs/react';
-
 import { NavMobile } from './nav-mobile';
 import { VerticalDivider } from './content';
 import { NavVertical } from './nav-vertical';
@@ -33,6 +31,8 @@ import { ContactsPopover } from '../components/contacts-popover';
 import { WorkspacesPopover } from '../components/workspaces-popover';
 import { useNavData } from '../nav-config-dashboard';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
+import { usePage } from '@inertiajs/react';
+import type { PageProps } from '@inertiajs/core';
 import { NotificationsDrawer } from '../components/notifications-drawer';
 
 // ----------------------------------------------------------------------
@@ -47,18 +47,6 @@ export type DashboardLayoutProps = LayoutBaseProps & {
       data?: NavSectionProps['data'];
     };
     main?: MainSectionProps;
-  };
-};
-
-type PageProps = {
-  auth: {
-    user: {
-      name: string;
-      email: string;
-      avatar: string;
-      roles: string[];
-      permissions: string[];
-    };
   };
 };
 

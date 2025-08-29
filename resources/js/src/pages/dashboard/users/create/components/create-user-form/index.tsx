@@ -14,15 +14,13 @@ import { Field, Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 import { useBoolean } from 'minimal-shared/hooks';
 import { Iconify } from '@/components/iconify';
 
 // ----------------------------------------------------------------------
 
 type Role = { id: number; name: string };
-
-type PageProps = InertiaPageProps & { csrf_token: string };
 
 type FormValues = {
   name: string;

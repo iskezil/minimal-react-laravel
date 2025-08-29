@@ -14,7 +14,7 @@ import { Field, Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import type { PageProps } from '@inertiajs/core';
 import { Label, LabelColor } from '@/components/label';
 import Box from '@mui/material/Box';
 import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
@@ -33,8 +33,6 @@ type User = {
   roles: number[];
   email_verified_at: string | null;
 };
-
-type PageProps = InertiaPageProps & { csrf_token: string };
 
 type FormValues = {
   name: string;
