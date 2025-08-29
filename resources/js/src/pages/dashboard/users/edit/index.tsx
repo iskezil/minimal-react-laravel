@@ -22,7 +22,7 @@ type User = {
   email: string;
   avatar: string | null;
   roles: number[];
-  status: string;
+  status: 'active' | 'pending' | 'banned';
   email_verified_at: string | null;
 };
 
