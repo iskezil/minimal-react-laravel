@@ -373,6 +373,8 @@ export default function List({ users, roles }: Props) {
                         <TableCell>
                           {editing.id === user.id && editing.field === 'status' ? (
                             <Select
+                              autoFocus
+                              open
                               size="small"
                               variant="filled"
                               hiddenLabel
@@ -436,6 +438,8 @@ export default function List({ users, roles }: Props) {
                         <TableCell>
                           {editing.id === user.id && editing.field === 'roles' ? (
                             <Select
+                              autoFocus
+                              open
                               multiple
                               size="small"
                               variant="filled"
