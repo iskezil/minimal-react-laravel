@@ -95,20 +95,18 @@ export default function List({ users, roles }: Props) {
     setUserList((prev) => prev.map((u) => (u.id === id ? { ...u, [field]: value } : u)));
   };
 
-  const handleSave = (id: number, field: keyof User) => {
+  const handleSave = (id: number, field: keyof User, value?: any) => {
     const updated = userList.find((u) => u.id === id);
     if (!updated) return;
     const data: Record<string, any> = { _token: csrfToken };
     if (field === 'roles') {
-      data.roles = updated.roles;
-      router.patch(route('users.update', id), data, { preserveScroll: true });
+      data.roles = value ?? updated.roles;
     } else if (field === 'status') {
-      data.status = updated.status;
-      router.patch(route('users.update', id), data, { preserveScroll: true });
+      data.status = value ?? updated.status;
     } else {
-      data[field] = (updated as any)[field];
-      router.patch(route('users.update', id), data, { preserveScroll: true });
+      data[field] = value ?? (updated as any)[field];
     }
+    router.patch(route('users.update', id), data, { preserveScroll: true });
     setEditing({ id: null, field: null });
   };
 
@@ -380,8 +378,9 @@ export default function List({ users, roles }: Props) {
                               hiddenLabel
                               value={user.status}
                               onChange={(e) => {
-                                handleEditChange(user.id, 'status', e.target.value);
-                                handleSave(user.id, 'status');
+                                const value = e.target.value;
+                                handleEditChange(user.id, 'status', value);
+                                handleSave(user.id, 'status', value);
                               }}
                               onClose={() => setEditing({ id: null, field: null })}
                             >
