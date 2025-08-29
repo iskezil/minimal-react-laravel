@@ -11,11 +11,8 @@ import { toast } from 'src/components/snackbar';
 import { useAuthz } from 'src/lib/authz';
 import { Can } from 'src/components/Can';
 
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
@@ -29,29 +26,19 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
-import Typography from '@mui/material/Typography';
 import { Label } from 'src/components/label';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { FilledInput } from '@mui/material';
-import InputAdornment from '@mui/material/InputAdornment';
-import { ConfirmDialog } from 'src/components/custom-dialog/confirm-dialog';
 import type { PageProps } from '@inertiajs/core';
 
+import { UserStatusTabs } from './components/user-status-tabs';
+import type { StatusTab } from './components/user-status-tabs';
+import { UserTableToolbar } from './components/user-table-toolbar';
+import { UserTableFiltersResult } from './components/user-table-filters-result';
+import { UserDeleteDialog } from './components/user-delete-dialog';
+import type { User, Role, Filters } from './types';
+
 // ----------------------------------------------------------------------
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  status: string;
-  created_at: string;
-  roles: number[];
-};
-
-type Role = { id: number; name: string };
-
-type Filters = { keyword: string; role: number | null; status: string };
 
 interface Props {
   users: User[];
@@ -109,7 +96,7 @@ export default function List({ users, roles }: Props) {
     setEditing({ id: null, field: null });
   };
 
-  const STATUS_TABS = [
+  const STATUS_TABS: StatusTab[] = [
     { value: 'all', label: __('pages/users.tabs.all') },
     { value: 'active', label: __('pages/users.tabs.active') },
     { value: 'pending', label: __('pages/users.tabs.pending') },
@@ -243,31 +230,12 @@ export default function List({ users, roles }: Props) {
           />
 
           <Card>
-            <Tabs value={filters.status} onChange={handleChangeStatus} sx={{ px: { md: 2.5 } }}>
-              {STATUS_TABS.map((tab) => (
-                <Tab
-                  key={tab.value}
-                  value={tab.value}
-                  iconPosition="end"
-                  label={tab.label}
-                  icon={
-                    <Label
-                      variant={
-                        tab.value === 'all' || tab.value === filters.status ? 'filled' : 'soft'
-                      }
-                      color={
-                        (tab.value === 'active' && 'success') ||
-                        (tab.value === 'pending' && 'warning') ||
-                        (tab.value === 'banned' && 'error') ||
-                        'default'
-                      }
-                    >
-                      {getStatusCount(tab.value)}
-                    </Label>
-                  }
-                />
-              ))}
-            </Tabs>
+            <UserStatusTabs
+              value={filters.status}
+              onChange={handleChangeStatus}
+              tabs={STATUS_TABS}
+              getCount={getStatusCount}
+            />
 
             <UserTableToolbar filters={filters} onFilters={handleFilters} roles={roles} />
 
@@ -539,140 +507,11 @@ export default function List({ users, roles }: Props) {
         </DashboardContent>
       </DashboardLayout>
 
-      <ConfirmDialog
+      <UserDeleteDialog
         open={deleteId !== null}
         onClose={() => setDeleteId(null)}
-        title={__('pages/users.delete_user')}
-        content={__('pages/users.delete_confirm')}
-        action={
-          <Button color="error" variant="contained" onClick={handleDelete}>
-            {__('pages/users.delete')}
-          </Button>
-        }
+        onDelete={handleDelete}
       />
     </>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-type UserTableToolbarProps = {
-  filters: Filters;
-  onFilters: (name: keyof Filters, value: string | number | null) => void;
-  roles: Role[];
-};
-
-function UserTableToolbar({ filters, onFilters, roles }: UserTableToolbarProps) {
-  const { __ } = useLang();
-
-  return (
-    <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ p: 2 }}>
-      <TextField
-        size="small"
-        variant="filled"
-        hiddenLabel
-        value={filters.keyword}
-        onChange={(e) => onFilters('keyword', e.target.value)}
-        sx={{ width: { xs: 1, sm: 240 } }}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="solar:magnifer-linear" width={24} />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
-
-      <TextField
-        select
-        size="small"
-        sx={{ minWidth: '100px', width: 'auto' }}
-        hiddenLabel
-        variant="filled"
-        placeholder={__('pages/users.filters.role')}
-        value={filters.role ?? ''}
-        onChange={(e) => onFilters('role', e.target.value === '' ? null : Number(e.target.value))}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="solar:user-id-bold" width={24} />
-              </InputAdornment>
-            ),
-          },
-        }}
-      >
-        {roles.map((role) => {
-          const key = role.name.toLowerCase();
-          return (
-            <MenuItem key={role.id} value={role.id}>
-              {__(`pages/users.roles.${key}`)}
-            </MenuItem>
-          );
-        })}
-      </TextField>
-    </Stack>
-  );
-}
-
-type UserTableFiltersResultProps = {
-  filters: Filters;
-  onFilters: (name: keyof Filters, value: string | number | null) => void;
-  onResetFilters: () => void;
-  results: number;
-  roles: Role[];
-};
-
-function UserTableFiltersResult({
-  filters,
-  onFilters,
-  onResetFilters,
-  results,
-  roles,
-}: UserTableFiltersResultProps) {
-  const { __ } = useLang();
-  const { keyword, role, status } = filters;
-  const roleName = role !== null ? roles.find((r) => r.id === role)?.name || '' : '';
-
-  const canReset = keyword || role !== null || status !== 'all';
-  if (!canReset) return null;
-
-  return (
-    <Stack spacing={1} direction="row" alignItems="center" sx={{ p: 2, pt: 0 }}>
-      <Typography variant="body2" sx={{ mr: 1 }}>
-        {__('pages/users.filters.results', { count: results })}
-      </Typography>
-
-      {status !== 'all' && (
-        <Chip
-          label={`${__('pages/users.filters.status')}: ${__('pages/users.tabs.' + status)}`}
-          onDelete={() => onFilters('status', 'all')}
-        />
-      )}
-
-      {role !== null && (
-        <Chip
-          label={`${__('pages/users.filters.role')}: ${__(`pages/users.roles.${roleName.toLowerCase()}`)}`}
-          onDelete={() => onFilters('role', null)}
-        />
-      )}
-
-      {keyword && (
-        <Chip
-          label={`${__('pages/users.filters.keyword')}: ${keyword}`}
-          onDelete={() => onFilters('keyword', '')}
-        />
-      )}
-
-      <Button
-        color="error"
-        startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-        onClick={onResetFilters}
-      >
-        {__('pages/users.filters.clear')}
-      </Button>
-    </Stack>
   );
 }
