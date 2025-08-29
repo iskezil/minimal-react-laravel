@@ -164,7 +164,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
           <Grid size={{ xs: 12, md: 4 }}>
             <Card sx={{ pt: 10, pb: 5, px: 3 }}>
               <Label color={statusColor} sx={{ position: 'absolute', top: 24, right: 24 }}>
-                {__(`pages/users.tabs.${currentStatus}`)}
+                {__(`pages/users.statuses.${currentStatus}`)}
               </Label>
               <Stack spacing={3} alignItems="center">
                 <Box sx={{ mb: 5 }}>

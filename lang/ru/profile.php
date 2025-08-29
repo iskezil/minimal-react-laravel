@@ -7,10 +7,8 @@ return [
       'nickname' => 'Ник:',
       'email' => 'Email:',
       'role' => 'Роль:',
+      'status' => 'Статус:',
       'statistics' => 'Статистика',
-      'status' => [
-        'active' => 'Активен'
-      ]
     ],
 
     'edit' => [

@@ -30,6 +30,11 @@ return [
         'pending' => 'Pending',
         'banned' => 'Banned',
     ],
+    'statuses' => [
+        'active' => 'Active',
+        'pending' => 'Pending',
+        'banned' => 'Banned',
+    ],
     'roles' => [
         'admin' => 'Administrator',
         'manager' => 'Manager',
@@ -60,7 +65,7 @@ return [
           'current_password' => 'Current password',
           'roles' => 'Roles',
           'avatar' => 'Upload photo',
-          'status' => 'Active',
+          'status' => 'Status',
           'submit_create' => 'Create user',
           'submit_update' => 'Save changes',
           'avatar_helper' => "Allowed *.jpeg, *.jpg, *.png, *.gif\nmax size of 3 Mb",
