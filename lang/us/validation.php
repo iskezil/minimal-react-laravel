@@ -188,8 +188,12 @@ return [
     */
 
     'attributes' => [
+        'name' => 'Name',
+        'email' => 'Email',
         'password' => 'Password',
         'password_confirmation' => 'Password confirmation',
+        'current_password' => 'Current password',
+        'roles' => 'Roles',
     ],
 
 ];

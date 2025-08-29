@@ -192,6 +192,8 @@ return [
     'name' => 'Имя',
     'password' => 'Пароль',
     'password_confirmation' => 'Подтверждение пароля',
+    'current_password' => 'Текущий пароль',
+    'roles' => 'Роли',
   ],
 
 ];
