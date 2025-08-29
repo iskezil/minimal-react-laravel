@@ -254,8 +254,8 @@ export default function List({ users, roles }: Props) {
                     <TableCell>{__('pages/users.table.name')}</TableCell>
                     <TableCell>{__('pages/users.table.email')}</TableCell>
                     <TableCell>{__('pages/users.table.status')}</TableCell>
-                    <TableCell>{__('pages/users.table.created')}</TableCell>
                     <TableCell>{__('pages/users.table.role')}</TableCell>
+                    <TableCell>{__('pages/users.table.created')}</TableCell>
                     <TableCell align="center">{__('pages/users.table.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
@@ -391,18 +391,6 @@ export default function List({ users, roles }: Props) {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
-                            {user.created_at}
-                            <IconButton
-                              className="action-icons"
-                              size="small"
-                              onClick={() => handleCopy(user.created_at)}
-                            >
-                              <Iconify icon="solar:copy-bold" width={16} />
-                            </IconButton>
-                          </Stack>
-                        </TableCell>
-                        <TableCell>
                           {editing.id === user.id && editing.field === 'roles' ? (
                             <Select
                               autoFocus
@@ -452,6 +440,18 @@ export default function List({ users, roles }: Props) {
                               </IconButton>
                             </Stack>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={0.5} alignItems="center" sx={hoverSx}>
+                            {user.created_at}
+                            <IconButton
+                              className="action-icons"
+                              size="small"
+                              onClick={() => handleCopy(user.created_at)}
+                            >
+                              <Iconify icon="solar:copy-bold" width={16} />
+                            </IconButton>
+                          </Stack>
                         </TableCell>
                         <TableCell align="center">
                           <Stack direction="row" spacing={1} justifyContent="center">

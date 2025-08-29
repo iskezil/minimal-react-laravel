@@ -33,7 +33,7 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'status' => $user->status,
-                'created_at' => $user->created_at->toDateString(),
+                'created_at' => $user->created_at->toDateTimeString(),
                 'roles' => $user->roles->pluck('id')->toArray(),
             ]);
 
