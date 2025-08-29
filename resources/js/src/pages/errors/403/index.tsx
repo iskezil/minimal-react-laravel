@@ -10,8 +10,11 @@ import { SimpleLayout } from 'src/layouts/simple';
 import { ForbiddenIllustration } from 'src/assets/illustrations';
 
 import { MotionContainer, varBounce } from 'src/components/animate';
+import { useLang } from 'src/hooks/useLang';
 
 export default function ForbiddenView() {
+  const { __ } = useLang();
+
   return (
     <SimpleLayout
       slotProps={{
@@ -21,14 +24,13 @@ export default function ForbiddenView() {
       <Container component={MotionContainer}>
         <m.div variants={varBounce('in')}>
           <Typography variant="h3" sx={{ mb: 2 }}>
-            No permission
+            {__('errors.403.title')}
           </Typography>
         </m.div>
 
         <m.div variants={varBounce('in')}>
           <Typography sx={{ color: 'text.secondary' }}>
-            The page you’re trying to access has restricted access. Please refer to your system
-            administrator.
+            {__('errors.403.description')}
           </Typography>
         </m.div>
 
@@ -37,7 +39,7 @@ export default function ForbiddenView() {
         </m.div>
 
         <Button component={RouterLink} href="/" size="large" variant="contained">
-          Go to home
+          {__('errors.go_home')}
         </Button>
       </Container>
     </SimpleLayout>

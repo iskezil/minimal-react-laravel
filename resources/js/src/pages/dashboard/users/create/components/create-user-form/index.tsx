@@ -47,16 +47,32 @@ export function CreateUserForm({ roles }: Props) {
 
   const Schema = z
     .object({
-      name: z.string().min(1, { message: __('validation.required') }),
-      email: z.string().email({ message: __('validation.email') }),
+      name: z.string().min(1, {
+        message: __('validation.required', {
+          attribute: __('validation.attributes.name'),
+        }),
+      }),
+      email: z.string().email({
+        message: __('validation.email', {
+          attribute: __('validation.attributes.email'),
+        }),
+      }),
       password: z.string().min(6, {
         message: __('validation.min.string', {
           attribute: __('validation.attributes.password'),
           min: 6,
         }),
       }),
-      password_confirmation: z.string().min(1, { message: __('validation.required') }),
-      roles: z.array(z.string()).min(1, { message: __('validation.required') }),
+      password_confirmation: z.string().min(1, {
+        message: __('validation.required', {
+          attribute: __('validation.attributes.password_confirmation'),
+        }),
+      }),
+      roles: z.array(z.string()).min(1, {
+        message: __('validation.required', {
+          attribute: __('validation.attributes.roles'),
+        }),
+      }),
       avatar: z.any().optional(),
       status: z.enum(['active', 'pending']),
       email_verified: z.boolean(),

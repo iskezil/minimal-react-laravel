@@ -11,8 +11,11 @@ import { SimpleLayout } from 'src/layouts/simple';
 import { ServerErrorIllustration } from 'src/assets/illustrations';
 
 import { MotionContainer, varBounce } from 'src/components/animate';
+import { useLang } from 'src/hooks/useLang';
 
 export default function InternalServerErrorView() {
+  const { __ } = useLang();
+
   return (
     <SimpleLayout
       slotProps={{
@@ -22,13 +25,13 @@ export default function InternalServerErrorView() {
       <Container component={MotionContainer}>
         <m.div variants={varBounce('in')}>
           <Typography variant="h3" sx={{ mb: 2 }}>
-            500 Internal server error
+            {__('errors.500.title')}
           </Typography>
         </m.div>
 
         <m.div variants={varBounce('in')}>
           <Typography sx={{ color: 'text.secondary' }}>
-            There was an error, please try again later.
+            {__('errors.500.description')}
           </Typography>
         </m.div>
 
@@ -37,7 +40,7 @@ export default function InternalServerErrorView() {
         </m.div>
 
         <Button component={RouterLink} href="/" size="large" variant="contained">
-          Go to home
+          {__('errors.go_home')}
         </Button>
       </Container>
     </SimpleLayout>

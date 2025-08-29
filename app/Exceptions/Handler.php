@@ -33,8 +33,8 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $e)
     {
-        // Если клиент просит JSON — отдаем стандартный JSON от Laravel
-        if ($request->expectsJson() || $request->wantsJson()) {
+        // В режиме отладки и для JSON-запросов используем стандартный вывод Laravel
+        if ($request->expectsJson() || $request->wantsJson() || config('app.debug')) {
             return parent::render($request, $e);
         }
 
@@ -45,19 +45,24 @@ class Handler extends ExceptionHandler
                 ->setStatusCode(419);
         }
 
-        // HTTP-исключения: 403, 404, 429, 503 и т.п.
+        // HTTP-исключения: 403, 404 и т.п.
         if ($e instanceof HttpExceptionInterface) {
             $status = $e->getStatusCode();
 
             $pageMap = [
                 403 => 'errors/403',
                 404 => 'errors/404',
+                419 => 'errors/419',
                 500 => 'errors/500',
             ];
 
-            return Inertia::render($pageMap[$status] ?? 'errors/500')
-                ->toResponse($request)
-                ->setStatusCode($status);
+            if (isset($pageMap[$status])) {
+                return Inertia::render($pageMap[$status])
+                    ->toResponse($request)
+                    ->setStatusCode($status);
+            }
+
+            return parent::render($request, $e);
         }
 
         // Любая иная непойманная ошибка -> 500 как HTML

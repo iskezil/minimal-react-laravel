@@ -59,9 +59,21 @@ export function EditUserForm({ roles, currentUser }: Props) {
   const [openDelete, setOpenDelete] = useState(false);
 
   const Schema = z.object({
-    name: z.string().min(1, { message: __('validation.required') }),
-    email: z.string().email({ message: __('validation.email') }),
-    roles: z.array(z.string()).min(1, { message: __('validation.required') }),
+    name: z.string().min(1, {
+      message: __('validation.required', {
+        attribute: __('validation.attributes.name'),
+      }),
+    }),
+    email: z.string().email({
+      message: __('validation.email', {
+        attribute: __('validation.attributes.email'),
+      }),
+    }),
+    roles: z.array(z.string()).min(1, {
+      message: __('validation.required', {
+        attribute: __('validation.attributes.roles'),
+      }),
+    }),
     avatar: z.union([z.instanceof(File), z.string(), z.null()]).nullable(),
     banned: z.boolean(),
     email_verified: z.boolean(),

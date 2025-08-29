@@ -39,14 +39,22 @@ export function EditPasswordUserForm({ currentUser }: Props) {
 
   const Schema = z
     .object({
-      current_password: z.string().min(1, { message: __('validation.required') }),
+      current_password: z.string().min(1, {
+        message: __('validation.required', {
+          attribute: __('validation.attributes.current_password'),
+        }),
+      }),
       password: z.string().min(6, {
         message: __('validation.min.string', {
           attribute: __('validation.attributes.password'),
           min: 6,
         }),
       }),
-      password_confirmation: z.string().min(1, { message: __('validation.required') }),
+      password_confirmation: z.string().min(1, {
+        message: __('validation.required', {
+          attribute: __('validation.attributes.password_confirmation'),
+        }),
+      }),
     })
     .refine((data) => data.password === data.password_confirmation, {
       path: ['password_confirmation'],
