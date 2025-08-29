@@ -74,6 +74,7 @@ export function useNavData(): NavSectionProps['data'] {
             path: paths.users,
             icon: ICONS.user,
             permission: 'USERS_VIEW',
+            deepMatch: true,
           },
           {
             title: __('navigation.management.rights'),
