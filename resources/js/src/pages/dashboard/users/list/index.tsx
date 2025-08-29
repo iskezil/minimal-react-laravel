@@ -101,10 +101,14 @@ export default function List({ users, roles }: Props) {
     const data: Record<string, any> = { _token: csrfToken };
     if (field === 'roles') {
       data.roles = updated.roles;
+      router.patch(route('users.update', id), data, { preserveScroll: true });
+    } else if (field === 'status') {
+      data.status = updated.status;
+      router.patch(route('users.update', id), data, { preserveScroll: true });
     } else {
       data[field] = (updated as any)[field];
+      router.patch(route('users.update', id), data, { preserveScroll: true });
     }
-    router.patch(route('users.update', id), data, { preserveScroll: true });
     setEditing({ id: null, field: null });
   };
 
