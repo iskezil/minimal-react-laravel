@@ -238,6 +238,10 @@ export default function List({ users, roles }: Props) {
         setDeleteId(null);
         router.reload({ only: ['users'] });
       },
+      onError: (errors: Record<string, string>) => {
+        toast.error(errors.user ?? __('pages/users.delete_error'));
+        setDeleteId(null);
+      },
     });
   };
 

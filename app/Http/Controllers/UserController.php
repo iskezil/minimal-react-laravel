@@ -169,7 +169,13 @@ class UserController extends Controller
             $user->save();
         }
 
-        if (isset($validated['roles']) && auth()->id() !== $user->id) {
+        if (isset($validated['roles'])) {
+            if (auth()->id() === $user->id) {
+                return back()->withErrors([
+                    'roles' => __('pages/users.self_role_error'),
+                ]);
+            }
+
             $roleNames = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
             $user->syncRoles($roleNames);
         }
@@ -180,7 +186,9 @@ class UserController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         if (auth()->id() === $user->id) {
-            return back();
+            return back()->withErrors([
+                'user' => __('pages/users.self_delete_error'),
+            ]);
         }
         
         $user->delete();

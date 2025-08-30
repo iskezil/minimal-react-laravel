@@ -161,7 +161,9 @@ export function EditUserForm({ roles, currentUser }: Props) {
         Object.entries(errors).forEach(([field, message]) => {
           setError(field as keyof FormValues, { type: 'server', message: message as string });
         });
-        toast.error(__('pages/users.update_error'));
+        toast.error(
+          (errors as Record<string, string>).roles ?? __('pages/users.update_error')
+        );
       },
     });
   });
@@ -179,8 +181,9 @@ export function EditUserForm({ roles, currentUser }: Props) {
         setOpenDelete(false);
         router.visit(paths.users);
       },
-      onError: () => {
-        toast.error(__('pages/users.delete_error'));
+      onError: (errors: Record<string, string>) => {
+        toast.error(errors.user ?? __('pages/users.delete_error'));
+        setOpenDelete(false);
       },
     });
   };
