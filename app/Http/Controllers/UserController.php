@@ -169,7 +169,7 @@ class UserController extends Controller
             $user->save();
         }
 
-        if (isset($validated['roles'])) {
+        if (isset($validated['roles']) && auth()->id() !== $user->id) {
             $roleNames = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
             $user->syncRoles($roleNames);
         }
@@ -179,8 +179,11 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
+        if (auth()->id() === $user->id) {
+            return back();
+        }
+        
         $user->delete();
-
         return redirect()->route('users.index');
     }
 }
