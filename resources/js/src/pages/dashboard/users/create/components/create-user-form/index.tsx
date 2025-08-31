@@ -13,7 +13,7 @@ import { Box, IconButton, InputAdornment, Typography } from '@mui/material';
 import { Field, Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
-import { paths } from 'src/routes/paths';
+import { route } from 'src/routes/route';
 import type { PageProps } from '@inertiajs/core';
 import { useBoolean } from 'minimal-shared/hooks';
 import { Iconify } from '@/components/iconify';
@@ -123,7 +123,7 @@ export function CreateUserForm({ roles }: Props) {
     router.post(route('users.store'), payload, {
       onSuccess: () => {
         toast.success(__('pages/users.create_success'));
-        router.visit(paths.users);
+          router.visit(route('users.index'));
       },
       onError: (errors) => {
         Object.entries(errors).forEach(([field, message]) => {
