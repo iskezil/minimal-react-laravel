@@ -1,6 +1,10 @@
-import Ziggy, { RouteName } from 'src/ziggy';
+import { Ziggy, type RouteName } from 'src/ziggy';
 
-export function route(name: RouteName, params?: Record<string, any> | string | number, absolute = true) {
+export function route(
+  name: RouteName,
+  params?: Record<string, any> | string | number,
+  absolute = true
+) {
   let uri = Ziggy.routes[name].uri;
 
   if (params) {
