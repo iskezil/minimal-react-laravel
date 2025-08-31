@@ -5,7 +5,7 @@ export function route(
   params?: Record<string, any> | string | number,
   absolute = true
 ) {
-  let uri = Ziggy.routes[name].uri;
+  let uri: string = Ziggy.routes[name].uri;
 
   if (params) {
     const parameters: Record<string, any> =
