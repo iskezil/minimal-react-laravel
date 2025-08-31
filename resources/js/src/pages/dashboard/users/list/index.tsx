@@ -121,22 +121,14 @@ export default function List({ users, roles }: Props) {
       revert();
       return;
     }
-    // router.patch(route('users.update', id), data, { preserveScroll: true });
-
-    router.patch(
-      route('users.update', id),
-      {
-        data,
+    router.patch(route('users.update', id), data, {
+      onSuccess: () => {
+        toast.success(__('pages/users.update_success'));
       },
-      {
-        onSuccess: () => {
-          toast.success(__('pages/users.update_success'));
-        },
-        onError: (errors: Record<string, string>) => {
-          toast.error(errors.roles ?? __('pages/users.update_error'));
-        },
-      }
-    );
+      onError: (errors: Record<string, string>) => {
+        toast.error(errors.roles ?? __('pages/users.update_error'));
+      },
+    });
     setEditing({ id: null, field: null });
   };
 
