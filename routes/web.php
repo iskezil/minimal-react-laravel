@@ -15,24 +15,23 @@ Route::middleware('auth')->group(function () {
   });
 
   Route::get('/dashboard', function () {
-    syncLangFiles(['auth', 'navbar', 'navigation', 'pages/home']);
     return Inertia::render('dashboard/home');
-  });
+  })->middleware('sync.lang:auth,navbar,navigation,pages/home');
 
   Route::get('/users', [UserController::class, 'index'])
-    ->middleware('permission:USERS_VIEW')
+    ->middleware(['permission:USERS_VIEW', 'sync.lang:auth,navbar,navigation,validation,pages/users'])
     ->name('users.index');
   Route::get('/users/create', [UserController::class, 'create'])
-    ->middleware('permission:USERS_CREATE')
+    ->middleware(['permission:USERS_CREATE', 'sync.lang:auth,navbar,navigation,validation,pages/users'])
     ->name('users.create');
   Route::post('/users', [UserController::class, 'store'])
     ->middleware('permission:USERS_CREATE')
     ->name('users.store');
   Route::get('/users/{user}/edit', [UserController::class, 'edit'])
-    ->middleware('permission:USERS_EDIT')
+    ->middleware(['permission:USERS_EDIT', 'sync.lang:auth,navbar,navigation,validation,pages/users'])
     ->name('users.edit');
   Route::get('/users/{user}/edit/change-password', [UserController::class, 'edit'])
-    ->middleware('permission:USERS_EDIT')
+    ->middleware(['permission:USERS_EDIT', 'sync.lang:auth,navbar,navigation,validation,pages/users'])
     ->name('users.edit.password');
   Route::patch('/users/{user}', [UserController::class, 'update'])
     ->middleware('permission:USERS_EDIT')
@@ -42,7 +41,7 @@ Route::middleware('auth')->group(function () {
     ->name('users.destroy');
 
   Route::get('/roles', [RoleController::class, 'index'])
-    ->middleware('permission:ROLES_VIEW')
+    ->middleware(['permission:ROLES_VIEW', 'sync.lang:auth,navbar,navigation,pages/roles'])
     ->name('roles.index');
   Route::post('/roles', [RoleController::class, 'store'])
     ->middleware('permission:ROLES_CREATE')
@@ -55,7 +54,7 @@ Route::middleware('auth')->group(function () {
     ->name('roles.destroy');
 
   Route::get('/permissions', [PermissionController::class, 'index'])
-    ->middleware('permission:PERMISSIONS_VIEW')
+    ->middleware(['permission:PERMISSIONS_VIEW', 'sync.lang:auth,navbar,navigation,pages/permissions,pages/roles'])
     ->name('permissions.index');
   Route::post('/permissions', [PermissionController::class, 'store'])
     ->middleware('permission:PERMISSIONS_CREATE')
