@@ -32,12 +32,12 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { FilledInput } from '@mui/material';
 import type { PageProps } from '@inertiajs/core';
 
-import { UserStatusTabs } from './components/user-status-tabs';
 import type { StatusTab } from './components/user-status-tabs';
+import { UserStatusTabs } from './components/user-status-tabs';
 import { UserTableToolbar } from './components/user-table-toolbar';
 import { UserTableFiltersResult } from './components/user-table-filters-result';
 import { UserDeleteDialog } from './components/user-delete-dialog';
-import type { User, Role, Filters } from './types';
+import type { Filters, Role, User } from './types';
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +54,7 @@ export default function List({ users, roles }: Props) {
   const { __ } = useLang();
   const { props } = usePage<PageProps>();
   const csrfToken = props.csrf_token;
+  console.log('props.auth.user', props.auth.user);
   const authUserId = (props.auth.user as any)?.id as number | undefined;
   const { can } = useAuthz();
   const canEdit = can('USERS_EDIT');
@@ -98,12 +99,6 @@ export default function List({ users, roles }: Props) {
       changed =
         newRoles.length !== currentRoles.length ||
         newRoles.some((role, idx) => role !== currentRoles[idx]);
-      if (id === authUserId && changed) {
-        toast.error(__('pages/users.self_role_error'));
-        setEditing({ id: null, field: null });
-        revert();
-        return;
-      }
       if (changed) {
         data.roles = newRoles;
       }
@@ -126,7 +121,22 @@ export default function List({ users, roles }: Props) {
       revert();
       return;
     }
-    router.patch(route('users.update', id), data, { preserveScroll: true });
+    // router.patch(route('users.update', id), data, { preserveScroll: true });
+
+    router.patch(
+      route('users.update', id),
+      {
+        data,
+      },
+      {
+        onSuccess: () => {
+          toast.success(__('pages/users.update_success'));
+        },
+        onError: (errors: Record<string, string>) => {
+          toast.error(errors.roles ?? __('pages/users.update_error'));
+        },
+      }
+    );
     setEditing({ id: null, field: null });
   };
 
@@ -227,11 +237,6 @@ export default function List({ users, roles }: Props) {
 
   const handleDelete = () => {
     if (deleteId === null) return;
-    if (deleteId === authUserId) {
-      toast.error(__('pages/users.self_delete_error'));
-      setDeleteId(null);
-      return;
-    }
     router.delete(route('users.destroy', deleteId), {
       data: { _token: csrfToken },
       onSuccess: () => {

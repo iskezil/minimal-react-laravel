@@ -60,6 +60,7 @@
         "stylis": "^4.3.6",
         "stylis-plugin-rtl": "^2.1.1",
         "tiptap": "^1.32.2",
+        "ziggy-js": "^2.5.3",
         "zod": "^3.25.23"
     }
 }
