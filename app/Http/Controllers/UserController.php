@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
-use App\Http\Resources\RoleResource;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,13 +27,21 @@ class UserController extends Controller
     {
         $users = User::with('roles:id,name')
             ->select('id', 'name', 'email', 'status', 'created_at')
-            ->get();
+            ->get()
+            ->map(fn($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'status' => $user->status,
+                'created_at' => $user->created_at->toDateTimeString(),
+                'roles' => $user->roles->pluck('id')->toArray(),
+            ]);
 
         $roles = Role::select('id', 'name')->get();
 
-        return Inertia::render('dashboard/users/list', [
-            'users' => UserResource::collection($users),
-            'roles' => RoleResource::collection($roles),
+            return Inertia::render('dashboard/users/list', [
+            'users' => $users,
+            'roles' => $roles,
         ]);
     }
 
@@ -43,7 +50,7 @@ class UserController extends Controller
         $roles = Role::select('id', 'name')->get();
 
         return Inertia::render('dashboard/users/create', [
-            'roles' => RoleResource::collection($roles),
+            'roles' => $roles,
         ]);
     }
 
@@ -76,8 +83,20 @@ class UserController extends Controller
         $user->load('roles:id,name');
 
         return Inertia::render('dashboard/users/edit', [
-            'user' => new UserResource($user),
-            'roles' => RoleResource::collection(Role::select('id', 'name')->get()),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->avatar
+                    ? (Storage::disk('public')->exists($user->avatar)
+                        ? asset(Storage::url($user->avatar))
+                        : asset($user->avatar))
+                    : null,
+                'status' => $user->status,
+                'roles' => $user->roles->pluck('id')->toArray(),
+                'email_verified_at' => $user->email_verified_at,
+            ],
+            'roles' => Role::select('id', 'name')->get(),
         ]);
     }
 
