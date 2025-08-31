@@ -34,13 +34,7 @@ const flattenNavItems = (navItems: NavItem[], parentGroup?: string): OutputItem[
   return flattenedItems;
 };
 
-export function flattenNavSections(
-  navSections: NavSectionProps['data'] = []
-): OutputItem[] {
-  if (!Array.isArray(navSections)) {
-    return [];
-  }
-
+export function flattenNavSections(navSections: NavSectionProps['data']): OutputItem[] {
   return navSections.flatMap((navSection) =>
     flattenNavItems(navSection.items, navSection.subheader)
   );
@@ -54,11 +48,9 @@ type ApplyFilterProps = {
 };
 
 export function applyFilter({ inputData, query }: ApplyFilterProps): OutputItem[] {
-  const data = Array.isArray(inputData) ? inputData : [];
+  if (!query) return inputData;
 
-  if (!query) return data;
-
-  return data.filter(({ title, path, group }) =>
+  return inputData.filter(({ title, path, group }) =>
     [title, path, group].some((field) => field?.toLowerCase().includes(query.toLowerCase()))
   );
 }
