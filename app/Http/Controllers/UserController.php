@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -55,18 +54,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(UserStoreRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif', 'max:3072'],
-            'status' => ['required', Rule::in(['active', 'pending'])],
-            'email_verified_at' => ['nullable', 'date'],
-            'roles' => ['sometimes', 'array'],
-            'roles.*' => ['integer', 'exists:roles,id'],
-        ]);
+        $validated = $request->validated();
 
         $avatarPath = $request->file('avatar')?->store('avatars', 'public')
             ?? config('app.default_avatar');
@@ -110,23 +100,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UserUpdateRequest $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'current_password' => ['required_with:password', function ($attribute, $value, $fail) use ($user) {
-                if (!Hash::check($value, $user->password)) {
-                    $fail(__('validation.current_password'));
-                }
-            }],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif', 'max:3072'],
-            'status' => ['sometimes', Rule::in(['active', 'pending', 'banned'])],
-            'email_verified_at' => ['nullable', 'date'],
-            'roles' => ['sometimes', 'array'],
-            'roles.*' => ['integer', 'exists:roles,id'],
-        ]);
+        $validated = $request->validated();
 
         try {
             $this->userService->update($user, $validated, $request->file('avatar'));
