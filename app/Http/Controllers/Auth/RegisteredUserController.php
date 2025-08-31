@@ -21,7 +21,6 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        syncLangFiles('register');
         return Inertia::render('auth/register');
     }
 

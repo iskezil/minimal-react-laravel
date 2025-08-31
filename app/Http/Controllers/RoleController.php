@@ -22,8 +22,6 @@ class RoleController extends Controller
 
     public function index(): Response
     {
-        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/roles']);
-
         $roles = Role::with('permissions:id,name')
             ->select('id', 'name', 'created_at')
             ->get()

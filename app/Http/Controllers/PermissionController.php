@@ -22,8 +22,6 @@ class PermissionController extends Controller
 
     public function index(): Response
     {
-        syncLangFiles(['auth', 'navbar', 'navigation', 'pages/permissions', 'pages/roles']);
-
         $permissions = Permission::with('roles:id,name')
             ->select('id', 'name', 'module', 'created_at')
             ->get()
