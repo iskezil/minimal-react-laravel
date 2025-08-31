@@ -3,6 +3,7 @@ import type { NavSectionProps } from 'src/components/nav-section';
 import { useMemo } from 'react';
 
 import { paths } from 'src/routes/paths';
+import { route } from 'src/routes/route';
 
 import { CONFIG } from 'src/global-config';
 
@@ -71,25 +72,25 @@ export function useNavData(): NavSectionProps['data'] {
         items: [
           {
             title: __('navigation.management.users'),
-            path: paths.users,
+            path: route('users.index'),
             icon: ICONS.user,
             permission: 'USERS_VIEW',
             deepMatch: true,
           },
           {
             title: __('navigation.management.rights'),
-            path: paths.roles,
+            path: route('roles.index'),
             icon: ICONS.lock,
             anyOf: ['ROLES_VIEW', 'PERMISSIONS_VIEW'],
             children: [
               {
                 title: __('navigation.management.roles'),
-                path: paths.roles,
+                path: route('roles.index'),
                 permission: 'ROLES_VIEW',
               },
               {
                 title: __('navigation.management.permissions'),
-                path: paths.permissions,
+                path: route('permissions.index'),
                 permission: 'PERMISSIONS_VIEW',
               },
             ],

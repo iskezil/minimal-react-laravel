@@ -3,6 +3,7 @@ import { DashboardContent, DashboardLayout } from 'src/layouts/dashboard';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
+import { route } from 'src/routes/route';
 import { Can } from 'src/components/Can';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -41,12 +42,12 @@ export default function Edit({ user, roles }: Props) {
     {
       label: __('pages/users.edit_tabs.general'),
       icon: <Iconify width={24} icon="solar:user-id-bold" />,
-      href: paths.userEdit(user.id),
+      href: route('users.edit', user.id),
     },
     {
       label: __('pages/users.edit_tabs.security'),
       icon: <Iconify width={24} icon="ic:round-vpn-key" />,
-      href: `${paths.userEdit(user.id)}/change-password`,
+      href: route('users.edit.password', user.id),
     },
   ];
 
@@ -62,7 +63,7 @@ export default function Edit({ user, roles }: Props) {
               heading={__('pages/users.edit_user')}
               links={[
                 { name: __('pages/users.breadcrumbs.dashboard'), href: paths.dashboard.root },
-                { name: __('pages/users.breadcrumbs.users'), href: paths.users },
+                { name: __('pages/users.breadcrumbs.users'), href: route('users.index') },
                 { name: __('pages/users.breadcrumbs.edit') },
               ]}
               sx={{ mb: { xs: 3, md: 5 } }}

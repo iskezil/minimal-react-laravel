@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
 import { Field, Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { useLang } from 'src/hooks/useLang';
-import { paths } from 'src/routes/paths';
+import { route } from 'src/routes/route';
 import type { PageProps } from '@inertiajs/core';
 import { Label, LabelColor } from '@/components/label';
 import Box from '@mui/material/Box';
@@ -179,7 +179,7 @@ export function EditUserForm({ roles, currentUser }: Props) {
       onSuccess: () => {
         toast.success(__('pages/users.delete_success'));
         setOpenDelete(false);
-        router.visit(paths.users);
+        router.visit(route('users.index'));
       },
       onError: (errors: Record<string, string>) => {
         toast.error(errors.user ?? __('pages/users.delete_error'));

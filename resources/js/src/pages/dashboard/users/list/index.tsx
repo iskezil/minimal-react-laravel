@@ -6,6 +6,7 @@ import { DashboardContent, DashboardLayout } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { useLang } from 'src/hooks/useLang';
 import { paths } from 'src/routes/paths';
+import { route } from 'src/routes/route';
 import { RouterLink } from 'src/routes/components';
 import { toast } from 'src/components/snackbar';
 import { useAuthz } from 'src/lib/authz';
@@ -260,7 +261,7 @@ export default function List({ users, roles }: Props) {
               <Can permission="USERS_CREATE">
                 <Button
                   component={RouterLink}
-                  href={paths.userCreate}
+                  href={route('users.create')}
                   variant="contained"
                   startIcon={<Iconify icon="mingcute:add-line" />}
                 >
@@ -503,7 +504,7 @@ export default function List({ users, roles }: Props) {
                             {canEdit && (
                               <IconButton
                                 component={RouterLink}
-                                href={paths.userEdit(user.id)}
+                                href={route('users.edit', user.id)}
                                 size="small"
                                 color="primary"
                               >
