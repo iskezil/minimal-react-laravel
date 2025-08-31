@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PermissionResource;
+use App\Http\Resources\RoleResource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -24,27 +26,13 @@ class RoleController extends Controller
     {
         $roles = Role::with('permissions:id,name')
             ->select('id', 'name', 'created_at')
-            ->get()
-            ->map(fn ($role) => [
-                'id' => $role->id,
-                'name' => $role->name,
-                'created_at' => $role->created_at->toDateString(),
-                'permissions' => $role->permissions->map(fn ($p) => [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                ]),
-            ]);
+            ->get();
 
-        $permissions = Permission::select('id', 'name')
-            ->get()
-            ->map(fn ($p) => [
-                'id' => $p->id,
-                'name' => $p->name,
-            ]);
+        $permissions = Permission::select('id', 'name')->get();
 
         return Inertia::render('dashboard/roles/list', [
-            'roles' => $roles,
-            'permissions' => $permissions,
+            'roles' => RoleResource::collection($roles)->resolve(),
+            'permissions' => PermissionResource::collection($permissions)->resolve(),
         ]);
     }
 
