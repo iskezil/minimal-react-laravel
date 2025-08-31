@@ -224,11 +224,13 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, query }: ApplyFilterProps) {
-  if (!query) return inputData;
+  const data = Array.isArray(inputData) ? inputData : [];
+
+  if (!query) return data;
 
   const lowerQuery = query.toLowerCase();
 
-  return inputData.filter(({ label, code, phone }) =>
+  return data.filter(({ label, code, phone }) =>
     [label, code, phone].some((field) => field?.toLowerCase().includes(lowerQuery))
   );
 }
