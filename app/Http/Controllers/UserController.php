@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function __construct()
+    public function __construct(private UserService $userService)
     {
         $this->middleware('permission:USERS_VIEW')->only('index');
         $this->middleware('permission:USERS_CREATE')->only(['create', 'store']);
@@ -131,53 +133,10 @@ class UserController extends Controller
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
 
-        if (isset($validated['name'])) {
-            $user->name = $validated['name'];
-        }
-
-        if (isset($validated['email'])) {
-            $user->email = $validated['email'];
-        }
-
-        if (isset($validated['password'])) {
-            $user->password = $validated['password'];
-        }
-
-        if (isset($validated['status'])) {
-            $user->status = $validated['status'];
-        }
-
-        if (array_key_exists('email_verified_at', $validated)) {
-            $user->email_verified_at = $validated['email_verified_at'];
-        }
-
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            $user->avatar = $request->file('avatar')->store('avatars', 'public');
-        }
-
-        if (
-            isset($validated['name']) ||
-            isset($validated['email']) ||
-            isset($validated['password']) ||
-            isset($validated['status']) ||
-            array_key_exists('email_verified_at', $validated) ||
-            $request->hasFile('avatar')
-        ) {
-            $user->save();
-        }
-
-        if (isset($validated['roles'])) {
-            if (auth()->id() === $user->id) {
-                return back()->withErrors([
-                    'roles' => __('pages/users.self_role_error'),
-                ]);
-            }
-
-            $roleNames = Role::whereIn('id', $validated['roles'])->pluck('name')->toArray();
-            $user->syncRoles($roleNames);
+        try {
+            $this->userService->update($user, $validated, $request->file('avatar'));
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors());
         }
 
         return back();
