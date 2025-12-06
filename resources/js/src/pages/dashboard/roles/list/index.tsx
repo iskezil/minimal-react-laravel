@@ -173,7 +173,7 @@ export default function List({ roles, permissions }: Props) {
                     <TableCell>{__('pages/roles.table.name')}</TableCell>
                     <TableCell>{__('pages/roles.table.display')}</TableCell>
                     <TableCell>{__('pages/roles.table.created')}</TableCell>
-                    <TableCell align="center">{__('pages/roles.table.actions')}</TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -186,7 +186,7 @@ export default function List({ roles, permissions }: Props) {
                           : role.name}
                       </TableCell>
                       <TableCell>{role.created_at}</TableCell>
-                      <TableCell align="center">
+                      <TableCell align="right">
                         <IconButton color="primary" onClick={() => setViewRole(role)}>
                           <Iconify icon="solar:eye-bold" />
                         </IconButton>
@@ -288,32 +288,30 @@ export default function List({ roles, permissions }: Props) {
             {permissions.map((permission) => {
               const checked = editRole?.permissions.includes(permission.id) ?? false;
               return (
-                <Grid item xs={12} sm={6} md={4} key={permission.id}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={checked}
-                        onChange={() =>
-                          setEditRole((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  permissions: checked
-                                    ? prev.permissions.filter((id) => id !== permission.id)
-                                    : [...prev.permissions, permission.id],
-                                }
-                              : prev
-                          )
-                        }
-                      />
-                    }
-                    label={
-                      PERMISSION_NAMES[permission.name as keyof typeof PERMISSION_NAMES]
-                        ? __(PERMISSION_NAMES[permission.name as keyof typeof PERMISSION_NAMES])
-                        : permission.name
-                    }
-                  />
-                </Grid>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={checked}
+                      onChange={() =>
+                        setEditRole((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                permissions: checked
+                                  ? prev.permissions.filter((id) => id !== permission.id)
+                                  : [...prev.permissions, permission.id],
+                              }
+                            : prev
+                        )
+                      }
+                    />
+                  }
+                  label={
+                    PERMISSION_NAMES[permission.name as keyof typeof PERMISSION_NAMES]
+                      ? __(PERMISSION_NAMES[permission.name as keyof typeof PERMISSION_NAMES])
+                      : permission.name
+                  }
+                />
               );
             })}
           </Grid>

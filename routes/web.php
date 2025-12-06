@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function () {
     ->name('users.destroy');
 
   Route::get('/roles', [RoleController::class, 'index'])
-    ->middleware(['permission:ROLES_VIEW', 'sync.lang:auth,navbar,navigation,pages/roles'])
+    ->middleware(['permission:ROLES_VIEW', 'sync.lang:auth,navbar,navigation,pages/roles,pages/permissions'])
     ->name('roles.index');
   Route::post('/roles', [RoleController::class, 'store'])
     ->middleware('permission:ROLES_CREATE')
